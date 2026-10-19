@@ -41,3 +41,9 @@ Doménové testy overujú kratšie mesiace, priestupný rok, stavy úhrad po mes
 ## Aplikácia pre iPhone
 
 Projekt teraz obsahuje aj iOS aplikáciu cez Capacitor 8. Na Macu spustite `npm ci`, `npm run ios:sync` a `npm run ios:open`; inštaláciu do iPhonu dokončíte podpísaním v Xcode. Obrazovky sú priamo v aplikácii, Vercel nie je potrebný. Natívna verzia ukladá údaje cez Preferences a zálohu exportuje cez systémové Zdieľať. Podrobný postup a aktuálny stav overenia sú v [návode pre iPhone](docs/IPHONE.md). Natívne zostavenie a podpisovanie vyžadujú macOS/Xcode; v Linuxe zatiaľ neboli overené.
+
+## Bezplatné nasadenie na GitHub Pages
+
+Aktívny cieľ projektu je webová aplikácia. V repozitári nastavte **Settings → Pages → Source → GitHub Actions**. Workflow `Nasadenie webovej aplikácie` po každom pushi do `main` nainštaluje závislosti, spustí testy, zostaví `dist/` a publikuje ho do Pages. Spustiť sa dá aj ručne v záložke Actions. Relatívne cesty assetov fungujú aj pod cestou `/flit-flat/`. Vlastná doména nie je potrebná. Výslednú URL ukáže úspešný deploy a Settings → Pages.
+
+Web môžete na iPhone pridať na plochu cez Safari → Zdieľať → Pridať na plochu. Táto verzia nemá garantované spustenie bez internetu. Údaje sú lokálne v prehliadači; nová doména má samostatné úložisko, takže pri presune použite export/import zálohy. Natívny iOS projekt ostáva voliteľný; jeho kontrola v Actions sa teraz spúšťa len ručne.

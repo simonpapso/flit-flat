@@ -1,25 +1,7 @@
 name: Overenie iPhone aplikácie
 
+# Native iOS is optional; the active workflow is the web application.
 on:
-  push:
-    branches: [main]
-    paths:
-      - 'src/**'
-      - 'ios/**'
-      - 'package*.json'
-      - 'index.html'
-      - 'capacitor.config.json'
-      - 'vite.config.js'
-      - '.github/workflows/ios.yml'
-  pull_request:
-    paths:
-      - 'src/**'
-      - 'ios/**'
-      - 'package*.json'
-      - 'index.html'
-      - 'capacitor.config.json'
-      - 'vite.config.js'
-      - '.github/workflows/ios.yml'
   workflow_dispatch:
 
 permissions:

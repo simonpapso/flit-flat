@@ -69,3 +69,8 @@ Pri každom byte je tlačidlo **Dokumenty, fotky a pôdorys**. Voliteľnú cenu 
 V Prehľade aj v Nehnuteľnostiach je ročný graf celého portfólia a samostatný graf každého bytu. Zobrazuje 12 mesiacov, dohodnuté nájomné, splatné náklady a rozdiel. Kliknutie na mesiac ukáže presné sumy; mesačné hodnoty možno zobraziť aj ako tabuľku. Prepínač umožňuje zobraziť iba platby označené ako uhradené. Úhrady sú vedené podľa mesiaca splatnosti, nie podľa dátumu bankového prevodu. Nájomné ani opakované náklady nemajú historické verzie: graf používa aktuálne predpisy aj pre predchádzajúce a nasledujúce roky a nepredstavuje potvrdené príjmy z banky.
 
 Nové kategórie sú **Údržba**, **Oprava** a **Nové spotrebiče**. Opakovanie **Jednorazovo** vyžaduje konkrétny mesiac a rok. Výdavok sa zobrazí iba tam, nevznikne automaticky v ďalšom roku. Voliteľný popis pomôže evidovať napríklad konkrétnu opravu alebo kúpu chladničky. V grafoch sa ročné a kvartálne platby započítajú celé v mesiaci splatnosti. Pravidelný mesačný priemer a plánovaný zisk na karte bytu stále rozpočítavajú opakované platby a nezahŕňajú jednorazové výdavky; tie sa odčítajú v rozdiele za konkrétny mesiac grafu.
+
+
+### Stránka detailu nehnuteľnosti
+
+Dokumenty, fotografie a pôdorys sa otvárajú na samostatnej stránke v rámci aplikácie, nie v modálnom okne. V záhlaví sú základné údaje bytu a odkaz späť na nehnuteľnosti. Sekcie majú vlastné odkazy `#property/<id>/documents`, `photos` a `layout`; obnovenie stránky zachová otvorený byt a sekciu. Na GitHub Pages tieto hash odkazy nepotrebujú serverové presmerovanie. Odkaz neprenáša osobné údaje ani prílohy do iného zariadenia. Pred opustením neuloženého pôdorysu aplikácia vyžiada potvrdenie, vrátane navigácie v menu a tlačidla Späť v prehliadači.

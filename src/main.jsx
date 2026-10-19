@@ -39,6 +39,7 @@ function App({ initialData, initialLoadError }) {
   const [saveError, setSaveError] = useState('');
   const file = useRef();
   const update = async (next, importedFiles) => {
+    if (!validData(next)) { setSaveError('Údaje nie sú platné. Skontrolujte vyplnené hodnoty; pôvodné údaje zostali zachované.'); return false; }
     if (saveLock.current) return false;
     saveLock.current = true;
     setSaving(true);

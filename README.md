@@ -37,3 +37,7 @@ npm run preview -- --port 4173
 Doménové testy overujú kratšie mesiace, priestupný rok, stavy úhrad po mesiacoch a validáciu záloh. Pri vývoji bol v Chromium overený aj celý používateľský tok: pridanie bytu/platby, úhrada, obnovenie stránky, zmena mesiaca, nájomníci, export/import, odmietnutie chybnej zálohy, odstránenie bytu s platbami a mobilná navigácia.
 
 `dist/` obsahuje statickú aplikáciu vhodnú na statický hosting. Fonty aj ikony sú súčasťou zostavenia; aplikácia nepotrebuje externé API. Verejné nasadenie nie je súčasťou vytvorenia projektu.
+
+## Aplikácia pre iPhone
+
+Projekt teraz obsahuje aj iOS aplikáciu cez Capacitor 8. Na Macu spustite `npm ci`, `npm run ios:sync` a `npm run ios:open`; inštaláciu do iPhonu dokončíte podpísaním v Xcode. Obrazovky sú priamo v aplikácii, Vercel nie je potrebný. Natívna verzia ukladá údaje cez Preferences a zálohu exportuje cez systémové Zdieľať. Podrobný postup a aktuálny stav overenia sú v [návode pre iPhone](docs/IPHONE.md). Natívne zostavenie a podpisovanie vyžadujú macOS/Xcode; v Linuxe zatiaľ neboli overené.

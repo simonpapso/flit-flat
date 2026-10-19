@@ -1,0 +1,9 @@
+{
+  "appId": "sk.flitflat.app",
+  "appName": "Flit Flat",
+  "webDir": "dist",
+  "ios": {
+    "backgroundColor": "#f7f8f5",
+    "contentInset": "automatic"
+  }
+}

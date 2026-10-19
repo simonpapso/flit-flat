@@ -16,14 +16,17 @@ import '@fontsource/dm-sans/latin-700.css';
 import '@fontsource/manrope/latin-500.css';
 import '@fontsource/manrope/latin-700.css';
 import '@fontsource/manrope/latin-800.css';
+import { storage, DATA_KEY, isNative, exportBackup } from './storage.js';
 import './style.css';
-const KEY = 'flit-flat-v1';
+
 const icons = { Elektrina: Zap, Plyn: Flame, Voda: Droplets, Internet: Wifi, Poistenie: ShieldCheck, 'Spoločné priestory': Layers, Iné: Circle };
 const names = { overview: 'Prehľad', properties: 'Nehnuteľnosti', payments: 'Platby a energie', tenants: 'Nájomníci', settings: 'Nastavenia' };
 const today = new Date();
-function App() {
-  const [loadError, setLoadError] = useState(false);
-  const [data, setData] = useState(() => { try { const raw = localStorage.getItem(KEY); if (!raw) return emptyData(); const parsed = JSON.parse(raw); if (!validData(parsed)) throw Error(); return parsed; } catch { return emptyData(); } });
+function App({ initialData, initialLoadError }) {
+  const [loadError, setLoadError] = useState(initialLoadError);
+  const [saving, setSaving] = useState(false);
+  const saveLock = useRef(false);
+  const [data, setData] = useState(initialData);
   const [page, setPage] = useState('overview');
   const [month, setMonth] = useState(monthKey(today));
   const [filter, setFilter] = useState('all');
@@ -33,10 +36,18 @@ function App() {
   const [menu, setMenu] = useState(false);
   const [saveError, setSaveError] = useState('');
   const file = useRef();
-  useEffect(() => { try { const raw = localStorage.getItem(KEY); if (raw && !validData(JSON.parse(raw))) setLoadError(true); } catch { setLoadError(true); } }, []);
-  const update = next => {
-    try { localStorage.setItem(KEY, JSON.stringify(next)); setData(next); setSaveError(''); setLoadError(false); }
-    catch { setSaveError('Údaje sa nepodarilo uložiť. Skontrolujte voľné miesto alebo povolenie úložiska prehliadača.'); }
+  const update = async next => {
+    if (saveLock.current) return false;
+    saveLock.current = true;
+    setSaving(true);
+    try {
+      await storage.setItem(DATA_KEY, JSON.stringify(next));
+      setData(next); setSaveError(''); setLoadError(false);
+      return true;
+    } catch {
+      setSaveError('Údaje sa nepodarilo uložiť. Skontrolujte voľné miesto alebo povolenie úložiska zariadenia.');
+      return false;
+    } finally { saveLock.current = false; setSaving(false); }
   };
   useEffect(() => { if (!notice) return; const t = setTimeout(() => setNotice(''), 4000); return () => clearTimeout(t); }, [notice]);
   const selected = data.payments.filter(p => filter === 'all' || p.propertyId === filter);
@@ -51,26 +62,30 @@ function App() {
   const moveMonth = delta => { const d = new Date(currentDate); d.setMonth(d.getMonth() + delta); setMonth(monthKey(d)); };
   const toggle = payment => update({ ...data, payments: data.payments.map(p => p.id === payment.id ? { ...p, paidMonths: p.paidMonths.includes(month) ? p.paidMonths.filter(m => m !== month) : [...p.paidMonths, month] } : p) });
   const navigate = p => { setPage(p); setMenu(false); setFilter('all'); setStateFilter('all'); };
-  const exportData = () => { const url = URL.createObjectURL(new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })); const a = document.createElement('a'); a.href = url; a.download = `flit-flat-${monthKey(new Date())}.json`; a.click(); setTimeout(() => URL.revokeObjectURL(url), 1000); };
+  const exportData = async () => {
+    try { await exportBackup(data, `flit-flat-${monthKey(new Date())}.json`); }
+    catch { setNotice('Zálohu sa nepodarilo zdieľať alebo bolo zdieľanie zrušené. Vaše údaje zostávajú uložené.'); }
+  };
   const importData = async event => {
     const f = event.target.files[0]; if (!f) return;
     try { if (f.size > 5000000) throw Error(); const parsed = JSON.parse(await f.text()); if (!validData(parsed)) throw Error(); setModal({ kind: 'import', data: parsed }); }
     catch { setNotice('Súbor nie je platná záloha Flit Flat (max. 5 MB).'); } event.target.value = '';
   };
-  const saveForm = event => {
+  const saveForm = async event => {
     event.preventDefault(); const form = Object.fromEntries(new FormData(event.currentTarget));
+    let saved;
     if (modal.kind === 'property') {
       const item = { ...form, rent: Number(form.rent), id: modal.item?.id || crypto.randomUUID() };
-      update({ ...data, properties: modal.item ? data.properties.map(p => p.id === item.id ? item : p) : [...data.properties, item] });
+      saved = await update({ ...data, properties: modal.item ? data.properties.map(p => p.id === item.id ? item : p) : [...data.properties, item] });
     } else {
       const item = { ...form, amount: Number(form.amount), day: Number(form.day), id: modal.item?.id || crypto.randomUUID(), paidMonths: modal.item?.paidMonths || [] };
-      update({ ...data, payments: modal.item ? data.payments.map(p => p.id === item.id ? item : p) : [...data.payments, item] });
+      saved = await update({ ...data, payments: modal.item ? data.payments.map(p => p.id === item.id ? item : p) : [...data.payments, item] });
     }
-    setModal(null);
+    if (saved) setModal(null);
   };
   const paymentRows = selected.filter(p => stateFilter === 'all' || status(p, month) === stateFilter).sort((a,b) => a.day - b.day);
   const showPayments = page === 'overview' || page === 'payments';
-  return <div className="app">
+  return <div className={isNative ? "app native-app" : "app"} aria-busy={saving}>
     <aside className={menu ? 'sidebar open' : 'sidebar'}>
       <a className="brand" href="#" onClick={e => { e.preventDefault(); navigate('overview'); }}><span className="brand-icon"><House size={24}/></span>flit<span className="brand-light">flat</span><span className="brand-dot">.</span></a>
       <div className="workspace"><span className="avatar">M</span><div>Moje portfólio<small>Osobný priestor</small></div><span className="workspace-dot"/></div>
@@ -98,7 +113,7 @@ function App() {
           {!paymentRows.length && <div className="empty compact"><Wallet size={27}/><h3>{selected.length ? 'Žiadne platby v tomto filtri' : 'Žiadne mesačné platby'}</h3><p>{data.properties.length ? 'Pridajte elektrinu, vodu, internet či ďalšie pravidelné náklady.' : 'Najprv pridajte nehnuteľnosť, ku ktorej priradíte platby.'}</p></div>}
           <div className="table-foot"><span><ShieldCheck size={14}/>Úhrady označujete ručne. Aplikácia nie je prepojená s bankou.</span><span>{paymentRows.length} položiek</span></div></div></section>}
         {page === 'tenants' && <div className="tenant-grid">{data.properties.filter(p => p.tenant.trim()).map(p => <article className="tenant-card" key={p.id}><span className="tenant-avatar large">{p.tenant.split(' ').map(x => x[0]).slice(0,2).join('')}</span><h2>{p.tenant}</h2><p>{p.name}</p><dl><dt>Nájomné</dt><dd>{money(p.rent)} / mesiac</dd><dt>Telefón</dt><dd>{p.phone || 'Nevyplnené'}</dd><dt>E-mail</dt><dd>{p.email || 'Nevyplnené'}</dd></dl>{p.note && <p className="note">{p.note}</p>}<button className="secondary" onClick={() => setModal({ kind: 'property', item: p })}><Pencil size={15}/>Upraviť údaje</button></article>)}{!data.properties.some(p => p.tenant.trim()) && <div className="empty"><Users size={32}/><h3>Zatiaľ tu nie sú nájomníci</h3><p>Nájomníka pridáte v detailoch svojej nehnuteľnosti.</p><button className="secondary" onClick={() => navigate('properties')}>Prejsť na nehnuteľnosti<ArrowRight size={15}/></button></div>}</div>}
-        {page === 'settings' && <div className="settings-panel"><div className="settings-icon"><ShieldCheck size={28}/></div><h2>Vaše dáta, váš pokoj.</h2><p>Údaje sa ukladajú len v tomto prehliadači. Neodosielajú sa na server a automaticky sa nesynchronizujú medzi zariadeniami. Vymazaním údajov prehliadača sa odstránia aj záznamy aplikácie.</p><h3>Zálohovanie</h3><p>Pravidelne si stiahnite zálohu. Obsahuje aj údaje nájomníkov, preto ju uložte na bezpečné miesto.</p><div className="settings-actions"><button className="primary" onClick={exportData}><ArrowDownToLine size={17}/>Stiahnuť zálohu</button><button className="secondary" onClick={() => file.current.click()}><Upload size={17}/>Obnoviť zo zálohy</button><input type="file" accept="application/json,.json" hidden ref={file} onChange={importData}/></div><div className="settings-divider"/><h3>Ako fungujú platby</h3><p>Každá platba je mesačne sa opakujúci predpis. Stav úhrady je samostatný pre každý mesiac. Úprava sumy alebo splatnosti zmení predpis pre všetky mesiace. Táto verzia nesleduje históriu zmien súm, ročné vyúčtovania ani prijaté nájomné.</p><p>Poistenie pridávajte iba vtedy, ak ho platíte mesačne. Ročné platby zatiaľ nie sú podporované.</p>{!data.properties.length && <button className="text-btn" onClick={() => setModal({ kind: 'demo' })}>Vyskúšať ukážkové portfólio<ArrowRight size={16}/></button>}</div>}
+        {page === 'settings' && <div className="settings-panel"><div className="settings-icon"><ShieldCheck size={28}/></div><h2>Vaše dáta, váš pokoj.</h2><p>{isNative ? 'Údaje sa ukladajú v úložisku tejto aplikácie na vašom iPhone.' : 'Údaje sa ukladajú len v tomto prehliadači.'} Neodosielajú sa na server a automaticky sa nesynchronizujú medzi zariadeniami. {isNative ? 'Odinštalovaním aplikácie sa odstránia aj jej údaje. Predtým si vytvorte zálohu.' : 'Vymazaním údajov prehliadača sa odstránia aj záznamy aplikácie.'}</p><h3>Zálohovanie</h3><p>Pravidelne si stiahnite zálohu. Obsahuje aj údaje nájomníkov, preto ju uložte na bezpečné miesto.</p><div className="settings-actions"><button className="primary" onClick={exportData}><ArrowDownToLine size={17}/>Stiahnuť zálohu</button><button className="secondary" onClick={() => file.current.click()}><Upload size={17}/>Obnoviť zo zálohy</button><input type="file" accept="application/json,.json" hidden ref={file} onChange={importData}/></div><div className="settings-divider"/><h3>Ako fungujú platby</h3><p>Každá platba je mesačne sa opakujúci predpis. Stav úhrady je samostatný pre každý mesiac. Úprava sumy alebo splatnosti zmení predpis pre všetky mesiace. Táto verzia nesleduje históriu zmien súm, ročné vyúčtovania ani prijaté nájomné.</p><p>Poistenie pridávajte iba vtedy, ak ho platíte mesačne. Ročné platby zatiaľ nie sú podporované.</p>{!data.properties.length && <button className="text-btn" onClick={() => setModal({ kind: 'demo' })}>Vyskúšať ukážkové portfólio<ArrowRight size={16}/></button>}</div>}
         <footer><span className="footer-brand">flitflat.</span><span>Priestor pre byty. Pokoj pre vás.</span><span>Vytvorené pre jednoduchšiu správu.</span></footer>
       </div>
     </main>
@@ -107,7 +122,7 @@ function App() {
       {(modal.kind === 'property' || modal.kind === 'payment') ? <form onSubmit={saveForm} key={modal.item?.id || modal.kind}>
         {modal.kind === 'property' ? <><Field label="Názov nehnuteľnosti" name="name" defaultValue={modal.item?.name} placeholder="Napr. Byt na Ružovej" required maxLength={100}/><Field label="Adresa" name="address" defaultValue={modal.item?.address} placeholder="Ulica, číslo, mesto" maxLength={200}/><div className="form-row"><Field label="Dispozícia" name="type" defaultValue={modal.item?.type} placeholder="2-izbový byt" maxLength={60}/><Field label="Výmera (m²)" name="area" type="number" min="0" step="0.1" defaultValue={modal.item?.area}/></div><h3 className="form-subtitle">Nájomník a nájomné</h3><Field label="Meno nájomníka" name="tenant" defaultValue={modal.item?.tenant} placeholder="Pri voľnom byte nechajte prázdne" maxLength={100}/><div className="form-row"><Field label="Telefón" name="phone" type="tel" defaultValue={modal.item?.phone} maxLength={40}/><Field label="E-mail" name="email" type="email" defaultValue={modal.item?.email} maxLength={150}/></div><Field label="Mesačné nájomné (€)" name="rent" type="number" min="0" step="0.01" required defaultValue={modal.item?.rent ?? 0}/><label>Poznámka<textarea name="note" defaultValue={modal.item?.note} maxLength={2000} placeholder="Dôležité informácie k bytu alebo nájomníkovi"/></label></> : <><label>Nehnuteľnosť<select name="propertyId" required defaultValue={modal.item?.propertyId || (filter !== 'all' ? filter : data.properties[0]?.id)}>{data.properties.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}</select></label><label>Kategória<select name="category" defaultValue={modal.item?.category || 'Elektrina'}>{categories.map(c => <option key={c}>{c}</option>)}</select></label><Field label="Dodávateľ" name="supplier" defaultValue={modal.item?.supplier} placeholder="Napr. ZSE" maxLength={100}/><div className="form-row"><Field label="Mesačná suma (€)" name="amount" type="number" min="0.01" step="0.01" required defaultValue={modal.item?.amount}/><Field label="Deň splatnosti v mesiaci" name="day" type="number" min="1" max="31" step="1" required defaultValue={modal.item?.day || 15}/></div><p className="form-hint">Platba sa opakuje každý mesiac. Úhradu označíte v prehľade. {modal.item && 'Zmena predpisu platí pre všetky mesiace.'}</p>{modal.item && <button type="button" className="text-btn danger" onClick={() => setModal({ kind: 'delete-payment', item: modal.item })}><Trash2 size={15}/>Odstrániť platbu</button>}</>}
         <div className="modal-actions"><button type="button" className="secondary" onClick={() => setModal(null)}>Zrušiť</button><button className="primary" type="submit"><Check size={16}/>Uložiť</button></div>
-      </form> : modal.kind === 'help' ? <div className="help-content"><p>1. Pridajte svoje byty a vyplňte nájomníkov.</p><p>2. Ku každému bytu pridajte mesačné náklady na energie a služby.</p><p>3. Skontrolujte platbu vo svojej banke a kliknutím na stav ju označte ako uhradenú.</p><p>Šípkami pri mesiaci prejdete na ďalšie obdobie. V nastaveniach si pravidelne stiahnite zálohu údajov.</p><p className="form-hint">Aplikácia platby nevykonáva ani automaticky nekontroluje bankový účet.</p></div> : <><p className="confirm-text">{modal.kind === 'demo' ? 'Pridáme dva fiktívne byty, nájomníkov a mesačné platby. Sú to iba ukážkové údaje, ktoré môžete upraviť alebo odstrániť.' : modal.kind === 'import' ? 'Aktuálne údaje sa nahradia obsahom zálohy. Najprv si môžete stiahnuť zálohu súčasných dát.' : modal.kind === 'delete-property' ? `Odstráni sa „${modal.item.name}“, jeho nájomník aj všetky priradené platby a ich stavy úhrady. Tento krok sa nedá vrátiť.` : 'Odstráni sa tento mesačný predpis aj jeho úhrady vo všetkých mesiacoch. Tento krok sa nedá vrátiť.'}</p>{modal.kind === 'import' && <button className="text-btn" onClick={exportData}><ArrowDownToLine size={16}/>Stiahnuť súčasné dáta</button>}<div className="modal-actions"><button className="secondary" onClick={() => setModal(null)}>Zrušiť</button><button className={modal.kind.startsWith('delete') ? 'primary destructive' : 'primary'} onClick={() => { if (modal.kind === 'demo') update(demoData()); else if (modal.kind === 'import') update(modal.data); else if (modal.kind === 'delete-property') update({ ...data, properties: data.properties.filter(p => p.id !== modal.item.id), payments: data.payments.filter(p => p.propertyId !== modal.item.id) }); else update({ ...data, payments: data.payments.filter(p => p.id !== modal.item.id) }); setModal(null); }}> {modal.kind === 'demo' ? 'Načítať ukážku' : modal.kind === 'import' ? 'Obnoviť údaje' : 'Odstrániť'}</button></div></>}
+      </form> : modal.kind === 'help' ? <div className="help-content"><p>1. Pridajte svoje byty a vyplňte nájomníkov.</p><p>2. Ku každému bytu pridajte mesačné náklady na energie a služby.</p><p>3. Skontrolujte platbu vo svojej banke a kliknutím na stav ju označte ako uhradenú.</p><p>Šípkami pri mesiaci prejdete na ďalšie obdobie. V nastaveniach si pravidelne stiahnite zálohu údajov.</p><p className="form-hint">Aplikácia platby nevykonáva ani automaticky nekontroluje bankový účet.</p></div> : <><p className="confirm-text">{modal.kind === 'demo' ? 'Pridáme dva fiktívne byty, nájomníkov a mesačné platby. Sú to iba ukážkové údaje, ktoré môžete upraviť alebo odstrániť.' : modal.kind === 'import' ? 'Aktuálne údaje sa nahradia obsahom zálohy. Najprv si môžete stiahnuť zálohu súčasných dát.' : modal.kind === 'delete-property' ? `Odstráni sa „${modal.item.name}“, jeho nájomník aj všetky priradené platby a ich stavy úhrady. Tento krok sa nedá vrátiť.` : 'Odstráni sa tento mesačný predpis aj jeho úhrady vo všetkých mesiacoch. Tento krok sa nedá vrátiť.'}</p>{modal.kind === 'import' && <button className="text-btn" onClick={exportData}><ArrowDownToLine size={16}/>Stiahnuť súčasné dáta</button>}<div className="modal-actions"><button className="secondary" onClick={() => setModal(null)}>Zrušiť</button><button className={modal.kind.startsWith('delete') ? 'primary destructive' : 'primary'} onClick={async () => { let saved; if (modal.kind === 'demo') saved = await update(demoData()); else if (modal.kind === 'import') saved = await update(modal.data); else if (modal.kind === 'delete-property') saved = await update({ ...data, properties: data.properties.filter(p => p.id !== modal.item.id), payments: data.payments.filter(p => p.propertyId !== modal.item.id) }); else saved = await update({ ...data, payments: data.payments.filter(p => p.id !== modal.item.id) }); if (saved) setModal(null); }}> {modal.kind === 'demo' ? 'Načítať ukážku' : modal.kind === 'import' ? 'Obnoviť údaje' : 'Odstrániť'}</button></div></>}
     </Modal>}
   </div>;
 }
@@ -118,4 +133,17 @@ function Modal({ title, close, children }) {
   useEffect(() => { const el = ref.current; el.showModal(); const old = document.body.style.overflow; document.body.style.overflow = 'hidden'; return () => { document.body.style.overflow = old; }; }, []);
   return <dialog ref={ref} onCancel={close} onClick={e => { if (e.target === ref.current) { const rect = ref.current.getBoundingClientRect(); if (e.clientX < rect.left || e.clientX > rect.right || e.clientY < rect.top || e.clientY > rect.bottom) close(); } }}><div className="modal-head"><h2>{title}</h2><button className="icon-btn" aria-label="Zavrieť" onClick={close}><X size={21}/></button></div>{children}</dialog>;
 }
-createRoot(document.getElementById('root')).render(<App/>);
+async function start() {
+  let initialData = emptyData();
+  let initialLoadError = false;
+  try {
+    const raw = await storage.getItem(DATA_KEY);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (!validData(parsed)) throw new Error('Invalid stored data');
+      initialData = parsed;
+    }
+  } catch { initialLoadError = true; }
+  createRoot(document.getElementById('root')).render(<App initialData={initialData} initialLoadError={initialLoadError}/>);
+}
+start();

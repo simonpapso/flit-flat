@@ -15,16 +15,20 @@ Použite existujúci checkout; cloudová úloha je už izolovaná a nepotrebuje 
 ## Funkcie
 
 - Pridanie, úprava a odstránenie nehnuteľností, údaje nájomníkov a dohodnuté nájomné.
-- Mesačné predpisy za elektrinu, plyn, vodu, spoločné priestory, internet, poistenie a ostatné služby.
+- Mesačné, kvartálne a ročné predpisy za elektrinu, plyn, vodu, spoločné priestory, internet, poistenie a ostatné služby.
 - Manuálne označenie úhrady pre konkrétny mesiac, prehľad splatnosti a filtrovanie podľa bytu alebo stavu.
 - Export a obnovenie JSON zálohy s validáciou vstupných údajov.
 - Voliteľné fiktívne ukážkové portfólio, responzívne rozhranie pre mobil aj počítač.
 
 Začína prázdnym portfóliom. Všetky údaje sa ukladajú do localStorage tohto prehliadača pod kľúčom `flit-flat-v1`. Záloha obsahuje osobné údaje: uchovávajte ju bezpečne. Dáta sa neposielajú na server a nesynchronizujú medzi zariadeniami. Vymazanie úložiska prehliadača odstráni údaje; predtým ich exportujte v Nastaveniach. Rôzne domény a porty používajú odlišné úložisko.
 
-Platby sú výhradne **mesačne opakované predpisy**. Zmena sumy či splatnosti sa prejaví vo všetkých mesiacoch; aplikácia neuchováva históriu predpisov. Deň 29–31 sa v kratšom mesiaci posunie na jeho posledný deň. Po splatnosti je platba až deň nasledujúci po dni splatnosti, podľa lokálneho času zariadenia. Označenie úhrady platí iba pre zvolený mesiac. Vymazanie predpisu vymaže všetky jeho úhrady. Odstránenie bytu odstráni aj jeho nájomníka a platby, po potvrdení.
+Platby sú **mesačné, kvartálne alebo ročné predpisy**. Suma sa zadáva za celé obdobie (napríklad ročné poistenie 120 €). Pri ročnej platbe zvolíte mesiac splatnosti; pri kvartálnej jeden mesiac cyklu, ktorý sa opakuje každé tri mesiace aj cez koniec roka. Cyklus nie je obmedzený dátumom začiatku, platí aj pre predchádzajúce roky. V prehľade sú len platby splatné vo vybranom mesiaci. Cez **Všetky predpisy** možno upraviť aj platby splatné inokedy. Staršie dáta a zálohy bez opakovania sa interpretujú ako mesačné; pôvodný kľúč úložiska aj dáta zostávajú zachované.
 
-Táto prvá verzia sa nepripája k banke ani dodávateľom. Nájomné je dohodnutá suma, nie potvrdený príjem. Ročné platby, vyúčtovanie spotreby, história nájomníkov, prílohy a prihlasovanie zatiaľ nie sú implementované. Zámerne neobsahuje skutočné osobné ani bankové údaje.
+Pri každom byte je **plánovaný mesačný zisk = dohodnuté nájomné − mesačný priemer všetkých zadaných nákladov daného bytu**. Kvartálna suma sa delí tromi, ročná dvanástimi. Napríklad nájomné 620 € a mesačné náklady 180 € znamenajú zisk 440 €. Ročné poistenie 120 € pridá do mesačných nákladov 10 €. Záporný výsledok sa zobrazí ako strata. Označenie úhrady tento plánovaný výsledok nemení. Nie je to potvrdený príjem, peňažný tok ani zisk po daniach; nezadané náklady sa nezohľadnia.
+
+Zmena sumy, opakovania či splatnosti sa prejaví vo všetkých mesiacoch; aplikácia neuchováva históriu predpisov. Deň 29–31 sa v kratšom mesiaci posunie na jeho posledný deň. Po splatnosti je platba až deň nasledujúci po dni splatnosti, podľa lokálneho času zariadenia. Označenie úhrady platí iba pre zvolený mesiac a uchová sa aj pri úprave predpisu. Vymazanie predpisu vymaže všetky jeho úhrady. Odstránenie bytu odstráni aj jeho nájomníka a platby, po potvrdení.
+
+Táto prvá verzia sa nepripája k banke ani dodávateľom. Nájomné je dohodnutá suma, nie potvrdený príjem. Vyúčtovanie spotreby, história nájomníkov, prílohy a prihlasovanie zatiaľ nie sú implementované. Zámerne neobsahuje skutočné osobné ani bankové údaje.
 
 ## Overenie a produkčné zostavenie
 

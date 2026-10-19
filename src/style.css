@@ -10,3 +10,14 @@
 .native-app .sidebar{padding-top:calc(33px + env(safe-area-inset-top));padding-bottom:calc(18px + env(safe-area-inset-bottom))}
 .native-app .toast{bottom:calc(25px + env(safe-area-inset-bottom))}
 @media(max-width:700px){.native-app input,.native-app select,.native-app textarea{font-size:16px}.native-app .icon-btn{min-width:36px;min-height:36px}.native-app .status{min-height:36px}}
+.property-finance{border-top:1px solid var(--line);padding:14px 0 16px;display:grid;grid-template-columns:1fr 1fr;gap:10px 14px}
+.property-finance>div{display:flex;flex-direction:column;gap:6px}
+.property-finance span{font-size:10px;color:#89947f}
+.property-finance strong{font-size:15px;font-weight:650}
+.property-finance .profit{text-align:right;color:#3c7449}
+.property-finance .negative{color:#b06452}
+.property-finance>small{grid-column:1/-1;font-size:9px;line-height:1.6;color:#98a08d}
+@media(max-width:700px){.property-finance span{font-size:11px}.property-finance strong{font-size:17px}.property-finance>small{font-size:10px}}
+.schedule-item{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px 0;border-top:1px solid var(--line)}
+.schedule-item strong{font-size:13px}.schedule-item small{font-size:11px;color:#8b977f;line-height:1.7;margin-top:4px}
+@media(max-width:700px){.table-actions{flex-wrap:wrap;align-items:center}.table-actions>.text-btn{order:3;width:100%;justify-content:flex-start;min-height:30px}}

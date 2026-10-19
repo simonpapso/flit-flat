@@ -1,6 +1,18 @@
 export const categories = ['Elektrina', 'Plyn', 'Voda', 'Spoločné priestory', 'Internet', 'Poistenie', 'Iné'];
 export const money = value => new Intl.NumberFormat('sk-SK', { style: 'currency', currency: 'EUR', maximumFractionDigits: 2 }).format(value);
 export const monthKey = date => `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+export const frequencies = { monthly: { label: 'Mesačne', months: 1 }, quarterly: { label: 'Kvartálne', months: 3 }, yearly: { label: 'Ročne', months: 12 } };
+export const frequencyOf = payment => payment.frequency ?? 'monthly';
+export const monthlyAmount = payment => payment.amount / frequencies[frequencyOf(payment)].months;
+export function isDueInMonth(payment, month) {
+  const interval = frequencies[frequencyOf(payment)].months;
+  const m = Number(month.split('-')[1]);
+  return ((m - (payment.anchorMonth ?? 1)) % interval + interval) % interval === 0;
+}
+export function propertyFinance(property, payments) {
+  const cost = payments.filter(p => p.propertyId === property.id).reduce((sum, p) => sum + monthlyAmount(p), 0);
+  return { cost, profit: property.rent - cost };
+}
 export function dueDate(month, day) {
   const [year, m] = month.split('-').map(Number);
   return new Date(year, m - 1, Math.min(day, new Date(year, m, 0).getDate()));
@@ -32,5 +44,8 @@ export function validData(data) {
     && new Set(data.properties.map(p => p.id)).size === data.properties.length
     && new Set(data.payments.map(p => p.id)).size === data.payments.length
     && data.properties.every(p => typeof p.id === 'string' && typeof p.name === 'string' && p.name.trim() && ['address', 'type', 'area', 'tenant', 'email', 'phone', 'note'].every(k => typeof p[k] === 'string') && Number.isFinite(p.rent) && p.rent >= 0)
-    && data.payments.every(p => typeof p.id === 'string' && data.properties.some(x => x.id === p.propertyId) && categories.includes(p.category) && typeof p.supplier === 'string' && Number.isFinite(p.amount) && p.amount > 0 && Number.isInteger(p.day) && p.day >= 1 && p.day <= 31 && Array.isArray(p.paidMonths) && p.paidMonths.every(m => /^\d{4}-(0[1-9]|1[0-2])$/.test(m)));
+    && data.payments.every(p => typeof p.id === 'string' && data.properties.some(x => x.id === p.propertyId) && categories.includes(p.category) && typeof p.supplier === 'string' && Number.isFinite(p.amount) && p.amount > 0 && Number.isInteger(p.day) && p.day >= 1 && p.day <= 31
+      && Object.hasOwn(frequencies, frequencyOf(p))
+      && (p.anchorMonth === undefined ? frequencyOf(p) === 'monthly' : Number.isInteger(p.anchorMonth) && p.anchorMonth >= 1 && p.anchorMonth <= 12)
+      && Array.isArray(p.paidMonths) && p.paidMonths.every(m => /^\d{4}-(0[1-9]|1[0-2])$/.test(m)));
 }

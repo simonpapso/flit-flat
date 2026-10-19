@@ -45,6 +45,7 @@ export function validData(data) {
     && new Set(data.properties.map(p => p.id)).size === data.properties.length
     && new Set(data.payments.map(p => p.id)).size === data.payments.length
     && data.properties.every(p => typeof p.id === 'string' && typeof p.name === 'string' && p.name.trim() && ['address', 'type', 'area', 'tenant', 'email', 'phone', 'note'].every(k => typeof p[k] === 'string') && Number.isFinite(p.rent) && p.rent >= 0
+      && (p.trackingStart === undefined || typeof p.trackingStart === 'string' && /^(19|[2-9]\d)\d{2}-(0[1-9]|1[0-2])$/.test(p.trackingStart))
       && (p.price == null || Number.isFinite(p.price) && p.price >= 0)
       && (p.layout === undefined || validLayout(p.layout)))
     && data.payments.every(p => typeof p.id === 'string' && data.properties.some(x => x.id === p.propertyId) && categories.includes(p.category) && typeof p.supplier === 'string' && Number.isFinite(p.amount) && p.amount > 0 && Number.isInteger(p.day) && p.day >= 1 && p.day <= 31
@@ -65,11 +66,17 @@ export function validLayout(layout) {
 }
 
 export function annualOverview(properties, payments, year, mode = 'due') {
-  const ids = new Set(properties.map(p => p.id));
   return Array.from({ length: 12 }, (_, i) => {
     const month = `${year}-${String(i + 1).padStart(2, '0')}`;
+    const activeProperties = properties.filter(p => (p.trackingStart ?? '0000-01') <= month);
+    const ids = new Set(activeProperties.map(p => p.id));
     const costs = payments.filter(p => ids.has(p.propertyId) && isDueInMonth(p, month) && (mode !== 'paid' || p.paidMonths.includes(month))).reduce((sum, p) => sum + p.amount, 0);
-    const rent = properties.reduce((sum, p) => sum + p.rent, 0);
-    return { month, rent, costs, balance: rent - costs };
+    const rent = activeProperties.reduce((sum, p) => sum + p.rent, 0);
+    return { month, rent, costs, balance: rent - costs, active: activeProperties.length > 0 };
   });
+}
+
+export function withTrackingStart(data, month = monthKey(new Date())) {
+  if (data.properties.every(p => p.trackingStart !== undefined)) return data;
+  return { ...data, properties: data.properties.map(p => p.trackingStart === undefined ? { ...p, trackingStart: month } : p) };
 }

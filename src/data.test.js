@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { dueDate, status, validData, demoData, emptyData, isDueInMonth, monthlyAmount, propertyFinance } from './data.js';
+import { dueDate, status, validData, demoData, emptyData, isDueInMonth, monthlyAmount, propertyFinance, annualOverview, withTrackingStart } from './data.js';
 test('splatnosť rešpektuje kratšie mesiace a priestupný rok', () => {
   assert.equal(dueDate('2026-02', 31).getDate(), 28);
   assert.equal(dueDate('2028-02', 31).getDate(), 29);
@@ -92,4 +92,25 @@ test('ročný graf rozlišuje splatnosť, úhrady a nehnuteľnosti a zahŕňa je
  assert.equal(annualOverview([properties[0]],payments,2027)[9].costs,180);
  const paid=annualOverview(properties,payments,2026,'paid');assert.equal(paid[0].costs,180);assert.equal(paid[1].costs,0);assert.equal(paid[9].costs,800);
  for(let i=0;i<12;i++)assert.equal(all[i].costs,home[i].costs+annualOverview([properties[1]],payments,2026)[i].costs);
+});
+
+test('štatistiky započítajú každý byt a jeho platby až od jeho začiatku evidencie',()=>{
+ const homes=[{id:'a',rent:620,trackingStart:'2026-10'},{id:'b',rent:800,trackingStart:'2026-12'}];
+ const payments=[{propertyId:'a',amount:180,paidMonths:['2026-01','2026-10']},{propertyId:'b',amount:100,paidMonths:[]},{propertyId:'a',amount:900,frequency:'once',scheduledMonth:'2026-09',paidMonths:[]}];
+ const year=annualOverview(homes,payments,2026);
+ assert.equal(year[8].active,false);assert.equal(year[8].rent,0);assert.equal(year[8].costs,0);
+ assert.equal(year[9].rent,620);assert.equal(year[9].costs,180);
+ assert.equal(year[11].rent,1420);assert.equal(year[11].costs,280);
+ assert.equal(year.reduce((s,p)=>s+p.rent,0),2660);
+ assert.equal(annualOverview(homes,payments,2026,'paid')[0].costs,0);
+ assert.equal(annualOverview(homes,payments,2026,'paid')[9].costs,180);
+ assert.equal(annualOverview(homes,payments,2025).some(p=>p.active),false);
+});
+test('staré dáta dostanú začiatok evidencie iba raz a platné dátumy sa nemenia',()=>{
+ const data=demoData();data.properties[1].trackingStart='2025-03';
+ const migrated=withTrackingStart(data,'2026-10');
+ assert.equal(migrated.properties[0].trackingStart,'2026-10');assert.equal(migrated.properties[1].trackingStart,'2025-03');
+ assert.equal(withTrackingStart(migrated,'2027-01'),migrated);
+ assert.deepEqual(migrated.payments,data.payments);assert.equal(validData(migrated),true);
+ migrated.properties[0].trackingStart='2026-13';assert.equal(validData(migrated),false);
 });

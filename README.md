@@ -74,3 +74,7 @@ Nové kategórie sú **Údržba**, **Oprava** a **Nové spotrebiče**. Opakovani
 ### Stránka detailu nehnuteľnosti
 
 Dokumenty, fotografie a pôdorys sa otvárajú na samostatnej stránke v rámci aplikácie, nie v modálnom okne. V záhlaví sú základné údaje bytu a odkaz späť na nehnuteľnosti. Sekcie majú vlastné odkazy `#property/<id>/documents`, `photos` a `layout`; obnovenie stránky zachová otvorený byt a sekciu. Na GitHub Pages tieto hash odkazy nepotrebujú serverové presmerovanie. Odkaz neprenáša osobné údaje ani prílohy do iného zariadenia. Pred opustením neuloženého pôdorysu aplikácia vyžiada potvrdenie, vrátane navigácie v menu a tlačidla Späť v prehliadači.
+
+### Začiatok štatistík
+
+Každý byt má pole **Začiatok evidencie (mesiac)**, predvolene mesiac pridania. Grafy zobrazujú iba mesiace od tohto dátumu a započítajú aj náklady až od začiatku evidencie príslušného bytu. Celkové štatistiky začínajú najskorším začiatkom evidencie zo súčasných nehnuteľností. Ročné súčty sú iba za zobrazené obdobie, prvý mesiac sa nekráti na dni. Skoršie roky nie je možné vybrať. Pôvodná verzia neukladala dátum registrácie: záznamom bez tohto poľa sa pri prvom načítaní novej verzie priradí aktuálny mesiac a uloží sa, aby sa pri ďalších otvoreniach neposúval. Starší skutočný začiatok môžete nastaviť v úprave bytu. Existujúce dátumy v zálohách sa nemenia, staré zálohy bez dátumu sa doplnia aktuálnym mesiacom. Splatné platby mimo štatistického obdobia ostávajú v evidencii platieb; obdobie obmedzuje iba grafy.

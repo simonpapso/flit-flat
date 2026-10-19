@@ -11,7 +11,7 @@ function useBlobUrl(blob) {
 function Picture({file,...props}) { const url=useBlobUrl(file?.blob);return url ? <img src={url} {...props}/> : null; }
 function FilePreview({file,back}) {
   const url=useBlobUrl(file.blob);
-  return <div className="file-preview"><button className="text-btn" onClick={back}><ArrowLeft size={16}/>Späť na súbory</button><h3>{file.name}</h3>{fileKind(file.name)==='image' ? <img src={url} alt={file.name}/> : fileKind(file.name)==='pdf' ? <iframe title={file.name} src={url}/> : <p>Náhľad tohto formátu nie je dostupný. Stiahnite súbor a otvorte ho v príslušnej aplikácii.</p>}<a className="secondary download-link" href={url} download={file.name}><Download size={16}/>Stiahnuť súbor</a>{fileKind(file.name)==='pdf' && <a href={url} target="_blank" rel="noreferrer" className="text-btn">Otvoriť PDF v novej karte</a>}</div>;
+  return <div className="file-preview"><button className="text-btn" onClick={back}><ArrowLeft size={16}/>Späť na súbory</button><h3>{file.name}</h3>{fileKind(file.name)==='image' ? <img src={url} alt={file.name}/> : fileKind(file.name)==='pdf' ? (url && <iframe title={file.name} src={url}/>) : <p>Náhľad tohto formátu nie je dostupný. Stiahnite súbor a otvorte ho v príslušnej aplikácii.</p>}<a className="secondary download-link" href={url} download={file.name}><Download size={16}/>Stiahnuť súbor</a>{fileKind(file.name)==='pdf' && <a href={url} target="_blank" rel="noreferrer" className="text-btn">Otvoriť PDF v novej karte</a>}</div>;
 }
 export default function PropertyDetail({property,onSave,onClose}) {
   const dialog=useRef();const stage=useRef();const input=useRef();const drag=useRef();

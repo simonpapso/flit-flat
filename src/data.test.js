@@ -66,3 +66,30 @@ test('import prijíma platné dáta a odmieta chybné sumy aj neexistujúce byty
   data.payments[0].propertyId = 'missing';
   assert.equal(validData(data), false);
 });
+
+test('jednorazové výdavky patria len jednému mesiacu a nevstupujú do pravidelného priemeru', () => {
+ const p={frequency:'once',scheduledMonth:'2026-10',amount:800};
+ assert.equal(isDueInMonth(p,'2026-10'),true);
+ assert.equal(isDueInMonth(p,'2027-10'),false);
+ assert.equal(isDueInMonth(p,'2026-11'),false);
+ assert.equal(monthlyAmount(p),0);
+ const data=demoData();data.payments[0]={...data.payments[0],...p,category:'Nové spotrebiče'};
+ assert.equal(validData(data),true);delete data.payments[0].scheduledMonth;assert.equal(validData(data),false);
+});
+test('ročný graf rozlišuje splatnosť, úhrady a nehnuteľnosti a zahŕňa jednorazové náklady', async () => {
+ const {annualOverview}=await import('./data.js');
+ const properties=[{id:'a',rent:620},{id:'b',rent:800}];
+ const payments=[
+  {propertyId:'a',amount:180,paidMonths:['2026-01']},
+  {propertyId:'a',amount:120,frequency:'yearly',anchorMonth:2,paidMonths:[]},
+  {propertyId:'a',amount:90,frequency:'quarterly',anchorMonth:2,paidMonths:[]},
+  {propertyId:'a',amount:800,frequency:'once',scheduledMonth:'2026-10',paidMonths:['2026-10']},
+  {propertyId:'b',amount:100,paidMonths:[]}
+ ];
+ const all=annualOverview(properties,payments,2026);
+ assert.equal(all.length,12);assert.equal(all[0].rent,1420);assert.equal(all[1].costs,490);assert.equal(all[9].costs,1080);
+ const home=annualOverview([properties[0]],payments,2026);assert.equal(home[9].balance,-360);
+ assert.equal(annualOverview([properties[0]],payments,2027)[9].costs,180);
+ const paid=annualOverview(properties,payments,2026,'paid');assert.equal(paid[0].costs,180);assert.equal(paid[1].costs,0);assert.equal(paid[9].costs,800);
+ for(let i=0;i<12;i++)assert.equal(all[i].costs,home[i].costs+annualOverview([properties[1]],payments,2026)[i].costs);
+});

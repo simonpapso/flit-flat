@@ -1,10 +1,11 @@
-export const categories = ['Elektrina', 'Plyn', 'Voda', 'Spoločné priestory', 'Internet', 'Poistenie', 'Iné'];
+export const categories = ['Elektrina', 'Plyn', 'Voda', 'Spoločné priestory', 'Internet', 'Poistenie', 'Údržba', 'Oprava', 'Nové spotrebiče', 'Iné'];
 export const money = value => new Intl.NumberFormat('sk-SK', { style: 'currency', currency: 'EUR', maximumFractionDigits: 2 }).format(value);
 export const monthKey = date => `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
-export const frequencies = { monthly: { label: 'Mesačne', months: 1 }, quarterly: { label: 'Kvartálne', months: 3 }, yearly: { label: 'Ročne', months: 12 } };
+export const frequencies = { monthly: { label: 'Mesačne', months: 1 }, quarterly: { label: 'Kvartálne', months: 3 }, yearly: { label: 'Ročne', months: 12 }, once: { label: 'Jednorazovo', months: null } };
 export const frequencyOf = payment => payment.frequency ?? 'monthly';
-export const monthlyAmount = payment => payment.amount / frequencies[frequencyOf(payment)].months;
+export const monthlyAmount = payment => frequencyOf(payment) === 'once' ? 0 : payment.amount / frequencies[frequencyOf(payment)].months;
 export function isDueInMonth(payment, month) {
+  if (frequencyOf(payment) === 'once') return payment.scheduledMonth === month;
   const interval = frequencies[frequencyOf(payment)].months;
   const m = Number(month.split('-')[1]);
   return ((m - (payment.anchorMonth ?? 1)) % interval + interval) % interval === 0;
@@ -48,7 +49,9 @@ export function validData(data) {
       && (p.layout === undefined || validLayout(p.layout)))
     && data.payments.every(p => typeof p.id === 'string' && data.properties.some(x => x.id === p.propertyId) && categories.includes(p.category) && typeof p.supplier === 'string' && Number.isFinite(p.amount) && p.amount > 0 && Number.isInteger(p.day) && p.day >= 1 && p.day <= 31
       && Object.hasOwn(frequencies, frequencyOf(p))
-      && (p.anchorMonth === undefined ? frequencyOf(p) === 'monthly' : Number.isInteger(p.anchorMonth) && p.anchorMonth >= 1 && p.anchorMonth <= 12)
+      && (frequencyOf(p) !== 'once' || typeof p.scheduledMonth === 'string' && /^\d{4}-(0[1-9]|1[0-2])$/.test(p.scheduledMonth))
+      && (p.note === undefined || typeof p.note === 'string' && p.note.length <= 2000)
+      && (p.anchorMonth === undefined ? ['monthly','once'].includes(frequencyOf(p)) : Number.isInteger(p.anchorMonth) && p.anchorMonth >= 1 && p.anchorMonth <= 12)
       && Array.isArray(p.paidMonths) && p.paidMonths.every(m => /^\d{4}-(0[1-9]|1[0-2])$/.test(m)));
 }
 export function validLayout(layout) {
@@ -59,4 +62,14 @@ export function validLayout(layout) {
       && ['x','y','w','h','rotation'].every(k => Number.isFinite(x[k]))
       && x.x >= 0 && x.y >= 0 && x.w >= 5 && x.h >= 5 && x.x+x.w <= 100.001 && x.y+x.h <= 100.001
       && [0,90,180,270].includes(x.rotation) && Number.isInteger(x.quantity) && x.quantity >= 1 && x.quantity <= 999);
+}
+
+export function annualOverview(properties, payments, year, mode = 'due') {
+  const ids = new Set(properties.map(p => p.id));
+  return Array.from({ length: 12 }, (_, i) => {
+    const month = `${year}-${String(i + 1).padStart(2, '0')}`;
+    const costs = payments.filter(p => ids.has(p.propertyId) && isDueInMonth(p, month) && (mode !== 'paid' || p.paidMonths.includes(month))).reduce((sum, p) => sum + p.amount, 0);
+    const rent = properties.reduce((sum, p) => sum + p.rent, 0);
+    return { month, rent, costs, balance: rent - costs };
+  });
 }

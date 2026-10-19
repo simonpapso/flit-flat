@@ -43,9 +43,20 @@ export function validData(data) {
   return data?.version === 1 && Array.isArray(data.properties) && Array.isArray(data.payments)
     && new Set(data.properties.map(p => p.id)).size === data.properties.length
     && new Set(data.payments.map(p => p.id)).size === data.payments.length
-    && data.properties.every(p => typeof p.id === 'string' && typeof p.name === 'string' && p.name.trim() && ['address', 'type', 'area', 'tenant', 'email', 'phone', 'note'].every(k => typeof p[k] === 'string') && Number.isFinite(p.rent) && p.rent >= 0)
+    && data.properties.every(p => typeof p.id === 'string' && typeof p.name === 'string' && p.name.trim() && ['address', 'type', 'area', 'tenant', 'email', 'phone', 'note'].every(k => typeof p[k] === 'string') && Number.isFinite(p.rent) && p.rent >= 0
+      && (p.price == null || Number.isFinite(p.price) && p.price >= 0)
+      && (p.layout === undefined || validLayout(p.layout)))
     && data.payments.every(p => typeof p.id === 'string' && data.properties.some(x => x.id === p.propertyId) && categories.includes(p.category) && typeof p.supplier === 'string' && Number.isFinite(p.amount) && p.amount > 0 && Number.isInteger(p.day) && p.day >= 1 && p.day <= 31
       && Object.hasOwn(frequencies, frequencyOf(p))
       && (p.anchorMonth === undefined ? frequencyOf(p) === 'monthly' : Number.isInteger(p.anchorMonth) && p.anchorMonth >= 1 && p.anchorMonth <= 12)
       && Array.isArray(p.paidMonths) && p.paidMonths.every(m => /^\d{4}-(0[1-9]|1[0-2])$/.test(m)));
+}
+export function validLayout(layout) {
+  return layout && Array.isArray(layout.items) && layout.items.length <= 300
+    && new Set(layout.items.map(x => x.id)).size === layout.items.length
+    && layout.items.every(x => typeof x.id === 'string' && ['room','furniture'].includes(x.kind)
+      && typeof x.name === 'string' && x.name.length <= 100 && typeof x.note === 'string' && x.note.length <= 2000
+      && ['x','y','w','h','rotation'].every(k => Number.isFinite(x[k]))
+      && x.x >= 0 && x.y >= 0 && x.w >= 5 && x.h >= 5 && x.x+x.w <= 100.001 && x.y+x.h <= 100.001
+      && [0,90,180,270].includes(x.rotation) && Number.isInteger(x.quantity) && x.quantity >= 1 && x.quantity <= 999);
 }

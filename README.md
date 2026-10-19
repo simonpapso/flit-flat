@@ -17,10 +17,10 @@ Použite existujúci checkout; cloudová úloha je už izolovaná a nepotrebuje 
 - Pridanie, úprava a odstránenie nehnuteľností, údaje nájomníkov a dohodnuté nájomné.
 - Mesačné, kvartálne a ročné predpisy za elektrinu, plyn, vodu, spoločné priestory, internet, poistenie a ostatné služby.
 - Manuálne označenie úhrady pre konkrétny mesiac, prehľad splatnosti a filtrovanie podľa bytu alebo stavu.
-- Export a obnovenie JSON zálohy s validáciou vstupných údajov.
+- Kompletná ZIP záloha vrátane dokumentov a fotiek, obnovenie s validáciou; aj import starších JSON záloh.
 - Voliteľné fiktívne ukážkové portfólio, responzívne rozhranie pre mobil aj počítač.
 
-Začína prázdnym portfóliom. Všetky údaje sa ukladajú do localStorage tohto prehliadača pod kľúčom `flit-flat-v1`. Záloha obsahuje osobné údaje: uchovávajte ju bezpečne. Dáta sa neposielajú na server a nesynchronizujú medzi zariadeniami. Vymazanie úložiska prehliadača odstráni údaje; predtým ich exportujte v Nastaveniach. Rôzne domény a porty používajú odlišné úložisko.
+Začína prázdnym portfóliom. Údaje a prílohy webovej verzie sa ukladajú do IndexedDB `flit-flat-files-v1` v tomto prehliadači. Pôvodné dáta z localStorage pod kľúčom `flit-flat-v1` sa pri prvom načítaní automaticky načítajú a pri uložení sa prenesú do databázy. Pôvodná kópia sa odstráni až po úspešnom uložení do databázy. Záloha obsahuje osobné údaje: uchovávajte ju bezpečne. Dáta sa neposielajú na server a nesynchronizujú medzi zariadeniami. Vymazanie úložiska prehliadača odstráni údaje; predtým ich exportujte v Nastaveniach. Rôzne domény a porty používajú odlišné úložisko.
 
 Platby sú **mesačné, kvartálne alebo ročné predpisy**. Suma sa zadáva za celé obdobie (napríklad ročné poistenie 120 €). Pri ročnej platbe zvolíte mesiac splatnosti; pri kvartálnej jeden mesiac cyklu, ktorý sa opakuje každé tri mesiace aj cez koniec roka. Cyklus nie je obmedzený dátumom začiatku, platí aj pre predchádzajúce roky. V prehľade sú len platby splatné vo vybranom mesiaci. Cez **Všetky predpisy** možno upraviť aj platby splatné inokedy. Staršie dáta a zálohy bez opakovania sa interpretujú ako mesačné; pôvodný kľúč úložiska aj dáta zostávajú zachované.
 
@@ -28,7 +28,7 @@ Pri každom byte je **plánovaný mesačný zisk = dohodnuté nájomné − mesa
 
 Zmena sumy, opakovania či splatnosti sa prejaví vo všetkých mesiacoch; aplikácia neuchováva históriu predpisov. Deň 29–31 sa v kratšom mesiaci posunie na jeho posledný deň. Po splatnosti je platba až deň nasledujúci po dni splatnosti, podľa lokálneho času zariadenia. Označenie úhrady platí iba pre zvolený mesiac a uchová sa aj pri úprave predpisu. Vymazanie predpisu vymaže všetky jeho úhrady. Odstránenie bytu odstráni aj jeho nájomníka a platby, po potvrdení.
 
-Táto prvá verzia sa nepripája k banke ani dodávateľom. Nájomné je dohodnutá suma, nie potvrdený príjem. Vyúčtovanie spotreby, história nájomníkov, prílohy a prihlasovanie zatiaľ nie sú implementované. Zámerne neobsahuje skutočné osobné ani bankové údaje.
+Táto prvá verzia sa nepripája k banke ani dodávateľom. Nájomné je dohodnutá suma, nie potvrdený príjem. Vyúčtovanie spotreby, história nájomníkov a prihlasovanie zatiaľ nie sú implementované. Zámerne neobsahuje skutočné osobné ani bankové údaje.
 
 ## Overenie a produkčné zostavenie
 
@@ -51,3 +51,14 @@ Projekt teraz obsahuje aj iOS aplikáciu cez Capacitor 8. Na Macu spustite `npm 
 Aktívny cieľ projektu je webová aplikácia. V repozitári nastavte **Settings → Pages → Source → GitHub Actions**. Workflow `Nasadenie webovej aplikácie` po každom pushi do `main` nainštaluje závislosti, spustí testy, zostaví `dist/` a publikuje ho do Pages. Spustiť sa dá aj ručne v záložke Actions. Relatívne cesty assetov fungujú aj pod cestou `/flit-flat/`. Vlastná doména nie je potrebná. Výslednú URL ukáže úspešný deploy a Settings → Pages.
 
 Web môžete na iPhone pridať na plochu cez Safari → Zdieľať → Pridať na plochu. Táto verzia nemá garantované spustenie bez internetu. Údaje sú lokálne v prehliadači; nová doména má samostatné úložisko, takže pri presune použite export/import zálohy. Natívny iOS projekt ostáva voliteľný; jeho kontrola v Actions sa teraz spúšťa len ručne.
+
+
+## Detail bytu: cena, dokumenty, fotografie a pôdorys
+
+Pri každom byte je tlačidlo **Dokumenty, fotky a pôdorys**. Voliteľnú cenu (napríklad kúpnu) nastavíte pri pridaní alebo úprave nehnuteľnosti. Je to evidenčná hodnota a nemení mesačný zisk.
+
+- Dokumenty: PDF, DOC/DOCX, XLS/XLSX, TXT a obrázky. PDF a obrázky sa zobrazujú priamo; ostatné formáty sa sťahujú.
+- Fotografie a podklad pôdorysu: JPG/JPEG, PNG, WebP; maximálne 20 MB na súbor. HEIC exportujte ako JPG.
+- Pôdorys: môžete nahrať podklad alebo pridať miestnosti na prázdnu mriežku. Je to orientačný nákres bez mierky, nie CAD editor. Nábytok sa dá presúvať prstom/myšou a upravovať posuvníkmi, vrátane otočenia, počtu kusov a poznámky o stave či sériovom čísle. Zmeny treba potvrdiť cez **Uložiť pôdorys a inventár**. Najviac 300 položiek.
+- ZIP záloha obsahuje `backup.json` a binárne prílohy. Limit zálohy aj rozbaleného obsahu je 150 MB. V Nastaveniach môžete zálohu obnoviť; obnova nahrádza všetky dáta aj súbory. Starý JSON súbor obnoví iba dáta, bez príloh. Pred obnovou si vytvorte kompletnú ZIP zálohu. Obnova vo webovej verzii prebehne v jednej databázovej transakcii.
+- Odstránením bytu sa vo webovej verzii odstránia aj jeho prílohy. Súbory sa neukladajú do GitHubu ani na server. Zmena zariadenia/domény vyžaduje prenos zálohy; vymazanie údajov webu odstráni aj súbory. Dostupnú kapacitu určuje prehliadač.

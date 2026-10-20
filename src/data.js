@@ -54,6 +54,8 @@ export function validData(data) {
     && new Set(data.payments.map(p => p.id)).size === data.payments.length
     && data.properties.every(p => typeof p.id === 'string' && typeof p.name === 'string' && p.name.trim() && ['address', 'type', 'area', 'tenant', 'email', 'phone', 'note'].every(k => typeof p[k] === 'string') && Number.isFinite(p.rent) && p.rent >= 0
       && (p.trackingStart === undefined || typeof p.trackingStart === 'string' && /^(19|[2-9]\d)\d{2}-(0[1-9]|1[0-2])$/.test(p.trackingStart))
+      && (p.cardPreview === undefined || p.cardPreview === 'illustration' || p.cardPreview === 'floorplan' || typeof p.cardPreview === 'string' && /^photo:.+/.test(p.cardPreview))
+      && (p.rentReceivedMonths === undefined || Array.isArray(p.rentReceivedMonths) && p.rentReceivedMonths.every(m => typeof m === 'string' && /^(19|[2-9]\d)\d{2}-(0[1-9]|1[0-2])$/.test(m)))
       && (p.price == null || Number.isFinite(p.price) && p.price >= 0)
       && (p.layout === undefined || validLayout(p.layout)))
     && data.payments.every(p => typeof p.id === 'string' && data.properties.some(x => x.id === p.propertyId) && categories.includes(p.category) && typeof p.supplier === 'string' && Number.isFinite(p.amount) && p.amount > 0 && Number.isInteger(p.day) && p.day >= 1 && p.day <= 31
@@ -87,4 +89,10 @@ export function annualOverview(properties, payments, year, mode = 'due') {
 export function withTrackingStart(data, month = monthKey(new Date())) {
   if (data.properties.every(p => p.trackingStart !== undefined)) return data;
   return { ...data, properties: data.properties.map(p => p.trackingStart === undefined ? { ...p, trackingStart: month } : p) };
+}
+
+export function toggleRentReceived(property, month) {
+  if (!/^(19|[2-9]\d)\d{2}-(0[1-9]|1[0-2])$/.test(month)) throw new Error('Neplatný mesiac');
+  const months = property.rentReceivedMonths || [];
+  return { ...property, rentReceivedMonths: months.includes(month) ? months.filter(m => m !== month) : [...months, month] };
 }

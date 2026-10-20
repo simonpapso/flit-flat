@@ -57,7 +57,7 @@ Web môžete na iPhone pridať na plochu cez Safari → Zdieľať → Pridať na
 
 ## Detail bytu: cena, dokumenty, fotografie a pôdorys
 
-Pri každom byte je tlačidlo **Dokumenty, fotky a pôdorys**. Voliteľnú cenu (napríklad kúpnu) nastavíte pri pridaní alebo úprave nehnuteľnosti. Je to evidenčná hodnota a nemení mesačný zisk.
+Kliknutím na kartu bytu otvoríte detail so sekciami dokumentov, fotografií a pôdorysu. Voliteľnú cenu (napríklad kúpnu) nastavíte pri pridaní alebo úprave nehnuteľnosti. Je to evidenčná hodnota a nemení mesačný zisk.
 
 - Dokumenty: PDF, DOC/DOCX, XLS/XLSX, TXT a obrázky. PDF a obrázky sa zobrazujú priamo; ostatné formáty sa sťahujú.
 - Fotografie a podklad pôdorysu: JPG/JPEG, PNG, WebP; maximálne 20 MB na súbor. HEIC exportujte ako JPG.
@@ -86,3 +86,9 @@ Každý byt má pole **Začiatok evidencie (mesiac)**, predvolene mesiac pridani
 Nehnuteľnosti majú po jednej karte na celý riadok. Kliknutie na kartu otvorí detail s kartami Energie a platby, Dokumenty, Fotografie a Pôdorys a nábytok. Energie zobrazujú všetky predpisy daného bytu a úhrady za zvolený mesiac; platby možno pridávať, upravovať aj odstrániť. Byt možno odstrániť z prehľadu alebo detailu po potvrdení.
 
 Pri ukážkových bytoch je banner **Ukončiť ukážku**. Potvrdenie odstráni uvedené ukážkové byty, ich platby a prílohy, ostatné nehnuteľnosti zachová. Rozpoznajú sa aj pôvodné nezmenené ukážkové byty zo staršej verzie. Ak ste starý ukážkový byt premenovali na vlastný, odstráňte ho jednotlivo iba vtedy, keď ho už nepotrebujete. Chyba pri odstraňovaní sa zobrazuje priamo v potvrdzovacom okne.
+
+### Náhľad karty a prijaté nájomné
+
+Na karte bytu vyberte mesiac a kliknite na **Označiť prijaté nájomné**. Opätovné kliknutie označenie zruší iba za zvolený mesiac. Ide o manuálnu evidenciu prijatia; plánovaný zisk a graf dohodnutého nájomného sa nemenia.
+
+**Náhľad karty** umožňuje pôvodnú ilustráciu, konkrétnu nahratú fotku alebo pôdorys (nahratý obrázok, prípadne uložený nákres). Pri chýbajúcom súbore sa zobrazí ilustrácia. Fotky pridáte otvorením karty a výberom sekcie Fotografie. Pôvodné tlačidlo „Dokumenty, fotky a pôdorys“ bolo odstránené; sekcie sú naďalej dostupné v detaile bytu. Nastavenie náhľadu a mesačné označenia sa ukladajú spolu s existujúcimi údajmi a zálohami, v cloudovom režime cez rovnakú revíznu ochranu Supabase. Databázová migrácia nie je potrebná.

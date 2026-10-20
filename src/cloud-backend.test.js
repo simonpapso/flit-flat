@@ -36,3 +36,19 @@ test('lost commit response does not trigger deletion of uploaded files',async()=
  await assert.rejects(one.putFile({id:'f',propertyId:'p1',name:'f.pdf',kind:'document',type:'application/pdf',size:8,blob:new Blob(['%PDF-1.4'])}),/nebola potvrdená/);
  assert.equal(db.objects.size,1,'retain object because server commit outcome is unknown');assert.equal(one.data.properties.length,2);
 });
+
+test('rent receipts and card preview survive cloud reload without changing files or other data',async()=>{
+ const {toggleRentReceived}=await import('./data.js');
+ const db=server(),one=createCloudBackend(client(db),{id:A}),two=createCloudBackend(client(db),{id:A});
+ await one.load();const original=demoData();await one.write(original);
+ const file={id:'photo1',propertyId:'p1',kind:'photo',name:'flat.png',size:5,type:'image/png',blob:new Blob(['image'])};
+ await one.putFile(file);
+ const next={...one.data,properties:one.data.properties.map(p=>p.id==='p1'?{...toggleRentReceived(p,'2026-10'),cardPreview:'photo:photo1'}:p)};
+ await one.write(next);await two.load();
+ assert.deepEqual(two.data,next);assert.deepEqual(two.data.payments,original.payments);
+ assert.deepEqual(two.data.properties[1],original.properties[1]);
+ assert.equal(await(await two.allFiles())[0].blob.text(),'image');
+ await two.write({...two.data,properties:two.data.properties.map(p=>p.id==='p1'?toggleRentReceived(p,'2026-10'):p)});
+ await one.load();assert.deepEqual(one.data.properties[0].rentReceivedMonths,[]);
+ assert.equal(one.data.properties[0].cardPreview,'photo:photo1');
+});

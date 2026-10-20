@@ -123,3 +123,17 @@ test('ukončenie ukážky zachová skutočné byty aj ich platby a rozpozná sta
  const next=withoutDemo(data);assert.deepEqual(next.properties,[real]);assert.equal(next.payments.length,1);assert.equal(next.payments[0].propertyId,'real');assert.equal(validData(next),true);
  assert.equal(data.properties.length,3);
 });
+
+test('rent receipt is independent by property and month and preserves legacy records', async () => {
+ const { toggleRentReceived, demoData, validData } = await import('./data.js');
+ const data = demoData(), original = structuredClone(data);
+ const first = toggleRentReceived(data.properties[0], '2026-10');
+ const second = toggleRentReceived(first, '2026-11');
+ assert.deepEqual(second.rentReceivedMonths, ['2026-10','2026-11']);
+ assert.deepEqual(toggleRentReceived(second,'2026-10').rentReceivedMonths,['2026-11']);
+ assert.deepEqual(data,original);
+ assert.ok(validData({...data,properties:[{...second,cardPreview:'photo:sample'},data.properties[1]]}));
+ assert.ok(!validData({...data,properties:[{...first,rentReceivedMonths:['2026-13']}]}));
+ assert.ok(!validData({...data,properties:[{...first,cardPreview:'bad'}]}));
+ assert.throws(()=>toggleRentReceived(first,'2026-00'));
+});

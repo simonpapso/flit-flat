@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { X, Upload, FileText, Image, LayoutDashboard, Plus, Trash2, Download, ArrowLeft, Save, Pencil, House } from 'lucide-react';
+import { X, Upload, FileText, Image, LayoutDashboard, Plus, Trash2, Download, ArrowLeft, Save, Pencil, House, Zap } from 'lucide-react';
 import { allFiles, putFile, removeFile, createAttachment, fileKind } from './attachments.js';
 import { getCloudBackend } from './cloud-runtime.js';
 import { money } from './data.js';
@@ -14,7 +14,7 @@ function FilePreview({file,back}) {
   const url=useBlobUrl(file.blob);
   return <div className="file-preview"><button className="text-btn" onClick={back}><ArrowLeft size={16}/>Späť na súbory</button><h3>{file.name}</h3>{fileKind(file.name)==='image' ? <img src={url} alt={file.name}/> : fileKind(file.name)==='pdf' ? (url && <iframe title={file.name} src={url}/>) : <p>Náhľad tohto formátu nie je dostupný. Stiahnite súbor a otvorte ho v príslušnej aplikácii.</p>}<a className="secondary download-link" href={url} download={file.name}><Download size={16}/>Stiahnuť súbor</a>{fileKind(file.name)==='pdf' && <a href={url} target="_blank" rel="noreferrer" className="text-btn">Otvoriť PDF v novej karte</a>}</div>;
 }
-export default function PropertyDetail({property,onSave,onBack,onEdit,tab,onTabChange,guardRef}) {
+export default function PropertyDetail({property,onSave,onBack,onEdit,tab,onTabChange,guardRef,onDelete,energyContent}) {
   const stage=useRef();const input=useRef();const drag=useRef();
   const [files,setFiles]=useState([]);const [ready,setReady]=useState(false);const [busy,setBusy]=useState(false);const [error,setError]=useState('');const [preview,setPreview]=useState(null);
   const [items,setItems]=useState(property.layout?.items || []);const [selected,setSelected]=useState(null);const [dirty,setDirty]=useState(false);
@@ -48,10 +48,10 @@ export default function PropertyDetail({property,onSave,onBack,onEdit,tab,onTabC
   const save=async()=>{setBusy(true);setError('');try{if(await onSave({...property,layout:{items}}))setDirty(false);else setError('Pôdorys sa nepodarilo uložiť.');}catch{setError('Pôdorys sa nepodarilo uložiť.');}finally{setBusy(false);}};
   return <section className="property-detail detail-page" aria-label={`Detail bytu ${property.name}`}>
     <button className="text-btn detail-back" onClick={onBack} disabled={busy}><ArrowLeft size={16}/>Späť na nehnuteľnosti</button>
-    <div className="detail-page-heading"><div><div className="eyebrow">VAŠA NEHNUTEĽNOSŤ</div><h1>{property.name}</h1><p className="detail-subtitle">{property.address || 'Adresa zatiaľ nie je vyplnená'}</p></div><button className="secondary" onClick={onEdit} disabled={busy}><Pencil size={16}/>Upraviť údaje bytu</button></div>
+    <div className="detail-page-heading"><div><div className="eyebrow">VAŠA NEHNUTEĽNOSŤ</div><h1>{property.name}</h1><p className="detail-subtitle">{property.address || 'Adresa zatiaľ nie je vyplnená'}</p></div><button className="secondary" onClick={onEdit} disabled={busy}><Pencil size={16}/>Upraviť údaje bytu</button><button className="secondary danger" onClick={onDelete} disabled={busy}><Trash2 size={16}/>Odstrániť nehnuteľnosť</button></div>
     <div className="detail-summary"><div><small>NÁJOMNÍK</small><strong>{property.tenant || 'Nepriradený'}</strong></div><div><small>NÁJOMNÉ / MESIAC</small><strong>{money(property.rent)}</strong></div><div><small>CENA NEHNUTEĽNOSTI</small><strong>{property.price != null ? money(property.price) : 'Nevyplnená'}</strong></div><div><small>DISPOZÍCIA</small><strong>{property.type || 'Byt'}{property.area && ` · ${property.area} m²`}</strong></div></div>
-    <nav className="detail-tabs" aria-label="Sekcie bytu">{[['documents','Dokumenty',FileText,'document'],['photos','Fotografie',Image,'photo'],['layout','Pôdorys a nábytok',LayoutDashboard,'floorplan']].map(([key,label,Icon,kind])=><button className={tab===key?'secondary active':'secondary'} key={key} aria-current={tab===key?'page':undefined} onClick={()=>onTabChange(key)}><Icon size={18}/>{label}<span className="detail-tab-count">{key==='layout'?items.filter(x=>x.kind==='furniture').length:files.filter(f=>f.kind===kind).length}</span></button>)}</nav>
-    <div className="detail-page-body">
+    <nav className="detail-tabs" aria-label="Sekcie bytu">{[['energy','Energie a platby',Zap,'energy'],['documents','Dokumenty',FileText,'document'],['photos','Fotografie',Image,'photo'],['layout','Pôdorys a nábytok',LayoutDashboard,'floorplan']].map(([key,label,Icon,kind])=><button className={tab===key?'secondary active':'secondary'} key={key} aria-current={tab===key?'page':undefined} onClick={()=>onTabChange(key)}><Icon size={18}/>{label}{key!=='energy' && <span className="detail-tab-count">{key==='layout'?items.filter(x=>x.kind==='furniture').length:files.filter(f=>f.kind===kind).length}</span>}</button>)}</nav>
+    {tab==='energy' ? energyContent : <div className="detail-page-body">
     <p className="detail-local">{getCloudBackend() ? 'Súbory sú v súkromnom cloudovom úložisku vášho účtu. Na inom zariadení sa prihláste rovnakým účtom.' : 'Súbory sú iba v tomto zariadení.'} Kompletnú zálohu vrátane súborov stiahnete v Nastaveniach.</p>
     {error && <div className="warning" role="alert">{error}</div>}
     {preview ? <FilePreview file={preview} back={()=>setPreview(null)}/> : <>
@@ -66,5 +66,5 @@ export default function PropertyDetail({property,onSave,onBack,onEdit,tab,onTabC
       </aside></div><h3 className="inventory-heading">Nábytok ponechaný nájomníkom</h3><div className="inventory-list">{items.filter(x=>x.kind==='furniture').map(item=><button className="inventory-row" key={item.id} onClick={()=>setSelected(item.id)}><strong>{item.name} · {item.quantity} ks</strong><small>{item.note || 'Bez poznámky'}</small></button>)}{!items.some(x=>x.kind==='furniture')&&<p className="form-hint">Pridajte napríklad sedačku, posteľ alebo chladničku a ich stav.</p>}</div>{dirty&&<p className="unsaved" role="status">Máte neuložené zmeny. Kliknite na „Uložiť pôdorys a inventár“.</p>}</>}
     </>}
     </div>
-  </section>;
+  }</section>;
 }

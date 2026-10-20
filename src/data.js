@@ -28,8 +28,8 @@ export const emptyData = () => ({ version: 1, properties: [], payments: [] });
 export function demoData() {
   const month = monthKey(new Date());
   return { version: 1, properties: [
-    { id: 'p1', name: 'Byt na Ružovej', address: 'Ružová 12, Bratislava', type: '2-izbový byt', area: '54', tenant: 'Martin Novák', email: '', phone: '', rent: 690, note: '' },
-    { id: 'p2', name: 'Byt pri parku', address: 'Parková 8, Bratislava', type: '3-izbový byt', area: '72', tenant: 'Lucia Kováčová', email: '', phone: '', rent: 850, note: '' }
+    { demo: true, id: 'p1', name: 'Byt na Ružovej', address: 'Ružová 12, Bratislava', type: '2-izbový byt', area: '54', tenant: 'Martin Novák', email: '', phone: '', rent: 690, note: '' },
+    { demo: true, id: 'p2', name: 'Byt pri parku', address: 'Parková 8, Bratislava', type: '3-izbový byt', area: '72', tenant: 'Lucia Kováčová', email: '', phone: '', rent: 850, note: '' }
   ], payments: [
     { id: 'a', propertyId: 'p1', category: 'Elektrina', supplier: 'ZSE', amount: 48, day: 15, paidMonths: [month] },
     { id: 'b', propertyId: 'p1', category: 'Plyn', supplier: 'SPP', amount: 35, day: 20, paidMonths: [] },
@@ -39,6 +39,14 @@ export function demoData() {
     { id: 'f', propertyId: 'p2', category: 'Spoločné priestory', supplier: 'Správca domu', amount: 95, day: 10, paidMonths: [] },
     { id: 'g', propertyId: 'p2', category: 'Poistenie', supplier: 'Allianz', amount: 18, day: 28, paidMonths: [] }
   ] };
+}
+export function demoProperties(data) {
+  const samples = demoData().properties;
+  return data.properties.filter(p => p.demo === true || samples.some(d => ['id','name','address','tenant'].every(k => p[k] === d[k])));
+}
+export function withoutDemo(data) {
+  const ids = new Set(demoProperties(data).map(p => p.id));
+  return { ...data, properties: data.properties.filter(p => !ids.has(p.id)), payments: data.payments.filter(p => !ids.has(p.propertyId)) };
 }
 export function validData(data) {
   return data?.version === 1 && Array.isArray(data.properties) && Array.isArray(data.payments)

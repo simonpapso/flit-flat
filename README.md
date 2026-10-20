@@ -80,3 +80,9 @@ Dokumenty, fotografie a pôdorys sa otvárajú na samostatnej stránke v rámci 
 ### Začiatok štatistík
 
 Každý byt má pole **Začiatok evidencie (mesiac)**, predvolene mesiac pridania. Grafy zobrazujú iba mesiace od tohto dátumu a započítajú aj náklady až od začiatku evidencie príslušného bytu. Celkové štatistiky začínajú najskorším začiatkom evidencie zo súčasných nehnuteľností. Ročné súčty sú iba za zobrazené obdobie, prvý mesiac sa nekráti na dni. Skoršie roky nie je možné vybrať. Pôvodná verzia neukladala dátum registrácie: záznamom bez tohto poľa sa pri prvom načítaní novej verzie priradí aktuálny mesiac a uloží sa, aby sa pri ďalších otvoreniach neposúval. Starší skutočný začiatok môžete nastaviť v úprave bytu. Existujúce dátumy v zálohách sa nemenia, staré zálohy bez dátumu sa doplnia aktuálnym mesiacom. Splatné platby mimo štatistického obdobia ostávajú v evidencii platieb; obdobie obmedzuje iba grafy.
+
+### Karty bytov a ukážkové portfólio
+
+Nehnuteľnosti majú po jednej karte na celý riadok. Kliknutie na kartu otvorí detail s kartami Energie a platby, Dokumenty, Fotografie a Pôdorys a nábytok. Energie zobrazujú všetky predpisy daného bytu a úhrady za zvolený mesiac; platby možno pridávať, upravovať aj odstrániť. Byt možno odstrániť z prehľadu alebo detailu po potvrdení.
+
+Pri ukážkových bytoch je banner **Ukončiť ukážku**. Potvrdenie odstráni uvedené ukážkové byty, ich platby a prílohy, ostatné nehnuteľnosti zachová. Rozpoznajú sa aj pôvodné nezmenené ukážkové byty zo staršej verzie. Ak ste starý ukážkový byt premenovali na vlastný, odstráňte ho jednotlivo iba vtedy, keď ho už nepotrebujete. Chyba pri odstraňovaní sa zobrazuje priamo v potvrdzovacom okne.

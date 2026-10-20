@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { dueDate, status, validData, demoData, emptyData, isDueInMonth, monthlyAmount, propertyFinance, annualOverview, withTrackingStart } from './data.js';
+import { dueDate, status, validData, demoData, emptyData, isDueInMonth, monthlyAmount, propertyFinance, annualOverview, withTrackingStart, demoProperties, withoutDemo } from './data.js';
 test('splatnosť rešpektuje kratšie mesiace a priestupný rok', () => {
   assert.equal(dueDate('2026-02', 31).getDate(), 28);
   assert.equal(dueDate('2028-02', 31).getDate(), 29);
@@ -113,4 +113,13 @@ test('staré dáta dostanú začiatok evidencie iba raz a platné dátumy sa nem
  assert.equal(withTrackingStart(migrated,'2027-01'),migrated);
  assert.deepEqual(migrated.payments,data.payments);assert.equal(validData(migrated),true);
  migrated.properties[0].trackingStart='2026-13';assert.equal(validData(migrated),false);
+});
+
+test('ukončenie ukážky zachová skutočné byty aj ich platby a rozpozná starú ukážku',()=>{
+ const data=demoData();delete data.properties[0].demo;delete data.properties[1].demo;
+ const real={...data.properties[0],id:'real',name:'Môj byt'};
+ data.properties.push(real);data.payments.push({...data.payments[0],id:'real-payment',propertyId:'real'});
+ assert.equal(demoProperties(data).length,2);
+ const next=withoutDemo(data);assert.deepEqual(next.properties,[real]);assert.equal(next.payments.length,1);assert.equal(next.payments[0].propertyId,'real');assert.equal(validData(next),true);
+ assert.equal(data.properties.length,3);
 });

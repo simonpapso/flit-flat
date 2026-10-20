@@ -4,18 +4,24 @@ import { Filesystem, Directory, Encoding } from '@capacitor/filesystem';
 import { Share } from '@capacitor/share';
 import { createStorage } from './storage-adapter.js';
 import { readSetting, writeSetting, restoreWebData, allFiles, replaceFiles } from './attachments.js';
+import { getCloudBackend } from './cloud-runtime.js';
 import { makeBackup } from './backup.js';
 
 export const isNative = Capacitor.isNativePlatform();
 export const DATA_KEY = 'flit-flat-v1';
 
-export const storage = createStorage(isNative, Preferences, {
+const localStorageAdapter = createStorage(isNative, Preferences, {
   getItem: async key => (await readSetting(key)) ?? localStorage.getItem(key),
   setItem: async (key, value) => {
     await writeSetting(key, value);
     try { localStorage.removeItem(key); } catch { /* Database is already committed. */ }
   },
 });
+
+export const storage = {
+  async getItem(key) { const cloud = getCloudBackend(); return cloud ? JSON.stringify(cloud.data) : localStorageAdapter.getItem(key); },
+  async setItem(key, value) { const cloud = getCloudBackend(); return cloud ? cloud.write(JSON.parse(value)) : localStorageAdapter.setItem(key, value); },
+};
 
 export async function exportBackup(data, filename) {
   const bytes = await makeBackup(data);
@@ -37,6 +43,8 @@ export async function exportBackup(data, filename) {
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 export async function restoreBackupData(data, files) {
+  const cloud = getCloudBackend();
+  if (cloud) return cloud.restore(data, files);
   if (!isNative) {
     await restoreWebData(DATA_KEY, data, files);
     try { localStorage.removeItem(DATA_KEY); } catch { /* Database is already committed. */ }

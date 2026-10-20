@@ -1,3 +1,4 @@
+import { getCloudBackend } from './cloud-runtime.js';
 const DB_NAME = 'flit-flat-files-v1';
 let connection;
 export function openDatabase() {
@@ -37,7 +38,7 @@ export const writeSetting = (key, value) => transaction(['settings', 'files'], t
   const cursor = tx.objectStore('files').openCursor();
   cursor.onsuccess = () => { const row = cursor.result; if (row) { if (!ids.has(row.value.propertyId)) row.delete(); row.continue(); } };
 });
-export async function allFiles() {
+export async function localAllFiles() {
   const db = await openDatabase();
   return new Promise((resolve, reject) => {
     const request = db.transaction('files').objectStore('files').getAll();
@@ -45,7 +46,7 @@ export async function allFiles() {
     request.onerror = () => reject(request.error);
   });
 }
-export const putFile = file => transaction(['files'], tx => {
+const putLocalFile = file => transaction(['files'], tx => {
   const store = tx.objectStore('files');
   if (file.kind === 'floorplan') {
     const cursor = store.openCursor();
@@ -53,7 +54,7 @@ export const putFile = file => transaction(['files'], tx => {
   }
   store.put(file);
 });
-export const removeFile = id => transaction(['files'], tx => tx.objectStore('files').delete(id));
+const removeLocalFile = id => transaction(['files'], tx => tx.objectStore('files').delete(id));
 export async function restoreWebData(key, data, files) {
   await transaction(['settings', 'files'], tx => {
     tx.objectStore('settings').put(JSON.stringify(data), key);
@@ -85,3 +86,7 @@ export async function createAttachment(file, propertyId, kind) {
   if (!valid) throw new Error('Obsah súboru nezodpovedá jeho prípone.');
   return { id: crypto.randomUUID(), propertyId, kind, name: file.name, type: fileType(file.name), size: file.size, createdAt: new Date().toISOString(), blob: new Blob([file], { type: fileType(file.name) }) };
 }
+
+export const allFiles = () => getCloudBackend() ? getCloudBackend().allFiles() : localAllFiles();
+export const putFile = file => getCloudBackend() ? getCloudBackend().putFile(file) : putLocalFile(file);
+export const removeFile = id => getCloudBackend() ? getCloudBackend().removeFile(id) : removeLocalFile(id);

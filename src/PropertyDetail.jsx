@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { X, Upload, FileText, Image, LayoutDashboard, Plus, Trash2, Download, ArrowLeft, Save, Pencil, House } from 'lucide-react';
 import { allFiles, putFile, removeFile, createAttachment, fileKind } from './attachments.js';
+import { getCloudBackend } from './cloud-runtime.js';
 import { money } from './data.js';
 const sizeLabel = n => n >= 1048576 ? `${(n / 1048576).toFixed(1)} MB` : `${Math.ceil(n / 1024)} kB`;
 function useBlobUrl(blob) {
@@ -38,7 +39,7 @@ export default function PropertyDetail({property,onSave,onBack,onEdit,tab,onTabC
     catch(e){setError(e.message || 'Súbor sa nepodarilo uložiť. Skontrolujte voľné miesto.');await refresh().catch(()=>{});}
     finally{setBusy(false);}
   };
-  const erase=async file=>{if(!window.confirm(`Odstrániť súbor „${file.name}“?`))return;setBusy(true);try{await removeFile(file.id);await refresh();}catch{setError('Odstránenie zlyhalo.');}finally{setBusy(false);}};
+  const erase=async file=>{if(!window.confirm(`Odstrániť súbor „${file.name}“?`))return;setBusy(true);try{await removeFile(file.id);await refresh();}catch(e){setError(e.message || 'Odstránenie zlyhalo.');}finally{setBusy(false);}};
   const change=(id,patch)=>{setItems(list=>list.map(x=>x.id===id?{...x,...patch}:x));setDirty(true);};
   const add=kind=>{if(items.length>=300){setError('Pôdorys môže obsahovať najviac 300 položiek.');return;}const id=crypto.randomUUID();setItems(list=>[...list,{id,kind,name:kind==='room'?'Nová miestnosť':'Nový nábytok',x:10,y:10,w:kind==='room'?40:18,h:kind==='room'?35:15,rotation:0,quantity:1,note:''}]);setSelected(id);setDirty(true);};
   const pointerDown=(e,item)=>{if(e.button!==0)return;e.preventDefault();setSelected(item.id);e.currentTarget.setPointerCapture(e.pointerId);const rect=stage.current.getBoundingClientRect();drag.current={id:item.id,x:e.clientX,y:e.clientY,ox:item.x,oy:item.y,rect};};
@@ -51,7 +52,7 @@ export default function PropertyDetail({property,onSave,onBack,onEdit,tab,onTabC
     <div className="detail-summary"><div><small>NÁJOMNÍK</small><strong>{property.tenant || 'Nepriradený'}</strong></div><div><small>NÁJOMNÉ / MESIAC</small><strong>{money(property.rent)}</strong></div><div><small>CENA NEHNUTEĽNOSTI</small><strong>{property.price != null ? money(property.price) : 'Nevyplnená'}</strong></div><div><small>DISPOZÍCIA</small><strong>{property.type || 'Byt'}{property.area && ` · ${property.area} m²`}</strong></div></div>
     <nav className="detail-tabs" aria-label="Sekcie bytu">{[['documents','Dokumenty',FileText,'document'],['photos','Fotografie',Image,'photo'],['layout','Pôdorys a nábytok',LayoutDashboard,'floorplan']].map(([key,label,Icon,kind])=><button className={tab===key?'secondary active':'secondary'} key={key} aria-current={tab===key?'page':undefined} onClick={()=>onTabChange(key)}><Icon size={18}/>{label}<span className="detail-tab-count">{key==='layout'?items.filter(x=>x.kind==='furniture').length:files.filter(f=>f.kind===kind).length}</span></button>)}</nav>
     <div className="detail-page-body">
-    <p className="detail-local">Súbory sú iba v tomto zariadení. Kompletnú zálohu vrátane súborov stiahnete v Nastaveniach.</p>
+    <p className="detail-local">{getCloudBackend() ? 'Súbory sú v súkromnom cloudovom úložisku vášho účtu. Na inom zariadení sa prihláste rovnakým účtom.' : 'Súbory sú iba v tomto zariadení.'} Kompletnú zálohu vrátane súborov stiahnete v Nastaveniach.</p>
     {error && <div className="warning" role="alert">{error}</div>}
     {preview ? <FilePreview file={preview} back={()=>setPreview(null)}/> : <>
       <div className="detail-toolbar"><h3>{tab==='documents'?'Zmluvy a dokumenty':tab==='photos'?'Fotogaléria':'Rozloženie bytu'}</h3><button className="primary" disabled={busy || !ready} onClick={()=>input.current.click()}><Upload size={16}/>{busy?'Ukladám…':tab==='layout'?'Nahrať pôdorys':tab==='photos'?'Pridať fotky':'Pridať dokumenty'}</button><input ref={input} type="file" hidden multiple={tab!=='layout'} accept={tab==='documents'?'.pdf,.doc,.docx,.xls,.xlsx,.txt,.jpg,.jpeg,.png,.webp':'image/jpeg,image/png,image/webp,.jpg,.jpeg,.png,.webp'} onChange={upload}/></div>

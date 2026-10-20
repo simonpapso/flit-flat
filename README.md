@@ -1,6 +1,6 @@
 # Flit Flat
 
-Jednoduchá aplikácia v slovenčine na správu investičných bytov. React + Vite, bez backendu a bez potrebných API kľúčov. Vyžaduje Node.js 22.12+ (overené s 24.19) a npm.
+Jednoduchá aplikácia v slovenčine na správu investičných bytov. React + Vite s voliteľnou súkromnou synchronizáciou cez Supabase. Vyžaduje Node.js 22.12+ (overené s 24.19) a npm.
 
 ## Spustenie
 
@@ -20,7 +20,9 @@ Použite existujúci checkout; cloudová úloha je už izolovaná a nepotrebuje 
 - Kompletná ZIP záloha vrátane dokumentov a fotiek, obnovenie s validáciou; aj import starších JSON záloh.
 - Voliteľné fiktívne ukážkové portfólio, responzívne rozhranie pre mobil aj počítač.
 
-Začína prázdnym portfóliom. Údaje a prílohy webovej verzie sa ukladajú do IndexedDB `flit-flat-files-v1` v tomto prehliadači. Pôvodné dáta z localStorage pod kľúčom `flit-flat-v1` sa pri prvom načítaní automaticky načítajú a pri uložení sa prenesú do databázy. Pôvodná kópia sa odstráni až po úspešnom uložení do databázy. Záloha obsahuje osobné údaje: uchovávajte ju bezpečne. Dáta sa neposielajú na server a nesynchronizujú medzi zariadeniami. Vymazanie úložiska prehliadača odstráni údaje; predtým ich exportujte v Nastaveniach. Rôzne domény a porty používajú odlišné úložisko.
+Prihlásenie a prenos existujúcich údajov nastavte podľa [návodu Supabase](docs/SUPABASE.md). V cloudovom režime sú údaje a prílohy súkromne v Supabase a dostupné rovnakému účtu na ďalších zariadeniach. Bez prihlásenia možno explicitne zvoliť lokálny režim.
+
+Lokálny režim začína prázdnym portfóliom. Jeho údaje a prílohy sa ukladajú do IndexedDB `flit-flat-files-v1` v tomto prehliadači. Pôvodné dáta z localStorage pod kľúčom `flit-flat-v1` sa pri prvom načítaní automaticky načítajú a pri uložení sa prenesú do databázy. Pôvodná kópia sa odstráni až po úspešnom uložení do databázy. Záloha obsahuje osobné údaje: uchovávajte ju bezpečne. V lokálnom režime sa dáta neposielajú na server a nesynchronizujú medzi zariadeniami. Vymazanie úložiska prehliadača odstráni údaje; predtým ich exportujte v Nastaveniach. Rôzne domény a porty používajú odlišné úložisko.
 
 Platby sú **mesačné, kvartálne, ročné alebo jednorazové predpisy**. Suma sa zadáva za celé obdobie (napríklad ročné poistenie 120 €). Pri ročnej platbe zvolíte mesiac splatnosti; pri kvartálnej jeden mesiac cyklu, ktorý sa opakuje každé tri mesiace aj cez koniec roka. Cyklus nie je obmedzený dátumom začiatku, platí aj pre predchádzajúce roky. V prehľade sú len platby splatné vo vybranom mesiaci. Cez **Všetky predpisy** možno upraviť aj platby splatné inokedy. Staršie dáta a zálohy bez opakovania sa interpretujú ako mesačné; pôvodný kľúč úložiska aj dáta zostávajú zachované.
 
@@ -28,7 +30,7 @@ Pri každom byte je **plánovaný mesačný zisk = dohodnuté nájomné − mesa
 
 Zmena sumy, opakovania či splatnosti sa prejaví vo všetkých mesiacoch; aplikácia neuchováva históriu predpisov. Deň 29–31 sa v kratšom mesiaci posunie na jeho posledný deň. Po splatnosti je platba až deň nasledujúci po dni splatnosti, podľa lokálneho času zariadenia. Označenie úhrady platí iba pre zvolený mesiac a uchová sa aj pri úprave predpisu. Vymazanie predpisu vymaže všetky jeho úhrady. Odstránenie bytu odstráni aj jeho nájomníka a platby, po potvrdení.
 
-Táto prvá verzia sa nepripája k banke ani dodávateľom. Nájomné je dohodnutá suma, nie potvrdený príjem. Vyúčtovanie spotreby, história nájomníkov a prihlasovanie zatiaľ nie sú implementované. Zámerne neobsahuje skutočné osobné ani bankové údaje.
+Táto prvá verzia sa nepripája k banke ani dodávateľom. Nájomné je dohodnutá suma, nie potvrdený príjem. Vyúčtovanie spotreby, história nájomníkov zatiaľ nie sú implementované. Zámerne neobsahuje skutočné osobné ani bankové údaje.
 
 ## Overenie a produkčné zostavenie
 
@@ -40,7 +42,7 @@ npm run preview -- --port 4173
 
 Doménové testy overujú kratšie mesiace, priestupný rok, stavy úhrad po mesiacoch a validáciu záloh. Pri vývoji bol v Chromium overený aj celý používateľský tok: pridanie bytu/platby, úhrada, obnovenie stránky, zmena mesiaca, nájomníci, export/import, odmietnutie chybnej zálohy, odstránenie bytu s platbami a mobilná navigácia.
 
-`dist/` obsahuje statickú aplikáciu vhodnú na statický hosting. Fonty aj ikony sú súčasťou zostavenia; aplikácia nepotrebuje externé API. Verejné nasadenie nie je súčasťou vytvorenia projektu.
+`dist/` obsahuje statickú aplikáciu vhodnú na statický hosting. Fonty aj ikony sú súčasťou zostavenia; lokálny režim nepotrebuje externé API. Cloudový režim používa Supabase Auth, databázu a Storage.
 
 ## Aplikácia pre iPhone
 
@@ -50,7 +52,7 @@ Projekt teraz obsahuje aj iOS aplikáciu cez Capacitor 8. Na Macu spustite `npm 
 
 Aktívny cieľ projektu je webová aplikácia. V repozitári nastavte **Settings → Pages → Source → GitHub Actions**. Workflow `Nasadenie webovej aplikácie` po každom pushi do `main` nainštaluje závislosti, spustí testy, zostaví `dist/` a publikuje ho do Pages. Spustiť sa dá aj ručne v záložke Actions. Relatívne cesty assetov fungujú aj pod cestou `/flit-flat/`. Vlastná doména nie je potrebná. Výslednú URL ukáže úspešný deploy a Settings → Pages.
 
-Web môžete na iPhone pridať na plochu cez Safari → Zdieľať → Pridať na plochu. Táto verzia nemá garantované spustenie bez internetu. Údaje sú lokálne v prehliadači; nová doména má samostatné úložisko, takže pri presune použite export/import zálohy. Natívny iOS projekt ostáva voliteľný; jeho kontrola v Actions sa teraz spúšťa len ručne.
+Web môžete na iPhone pridať na plochu cez Safari → Zdieľať → Pridať na plochu. Táto verzia nemá garantované spustenie bez internetu. Lokálny režim má údaje v prehliadači a nová doména má samostatné úložisko. Cloudový režim načíta údaje rovnakého účtu zo Supabase. Natívny iOS projekt ostáva voliteľný; jeho kontrola v Actions sa teraz spúšťa len ručne.
 
 
 ## Detail bytu: cena, dokumenty, fotografie a pôdorys
@@ -60,8 +62,8 @@ Pri každom byte je tlačidlo **Dokumenty, fotky a pôdorys**. Voliteľnú cenu 
 - Dokumenty: PDF, DOC/DOCX, XLS/XLSX, TXT a obrázky. PDF a obrázky sa zobrazujú priamo; ostatné formáty sa sťahujú.
 - Fotografie a podklad pôdorysu: JPG/JPEG, PNG, WebP; maximálne 20 MB na súbor. HEIC exportujte ako JPG.
 - Pôdorys: môžete nahrať podklad alebo pridať miestnosti na prázdnu mriežku. Je to orientačný nákres bez mierky, nie CAD editor. Nábytok sa dá presúvať prstom/myšou a upravovať posuvníkmi, vrátane otočenia, počtu kusov a poznámky o stave či sériovom čísle. Zmeny treba potvrdiť cez **Uložiť pôdorys a inventár**. Najviac 300 položiek.
-- ZIP záloha obsahuje `backup.json` a binárne prílohy. Limit zálohy aj rozbaleného obsahu je 150 MB. V Nastaveniach môžete zálohu obnoviť; obnova nahrádza všetky dáta aj súbory. Starý JSON súbor obnoví iba dáta, bez príloh. Pred obnovou si vytvorte kompletnú ZIP zálohu. Obnova vo webovej verzii prebehne v jednej databázovej transakcii.
-- Odstránením bytu sa vo webovej verzii odstránia aj jeho prílohy. Súbory sa neukladajú do GitHubu ani na server. Zmena zariadenia/domény vyžaduje prenos zálohy; vymazanie údajov webu odstráni aj súbory. Dostupnú kapacitu určuje prehliadač.
+- ZIP záloha obsahuje `backup.json` a binárne prílohy. Limit zálohy aj rozbaleného obsahu je 150 MB. V Nastaveniach môžete zálohu obnoviť; obnova nahrádza všetky dáta aj súbory. Starý JSON súbor obnoví iba dáta, bez príloh. Pred obnovou si vytvorte kompletnú ZIP zálohu. Lokálna obnova prebehne v jednej databázovej transakcii. Cloudová obnova najprv nahrá prílohy a potom atomicky uloží dáta a ich manifest s kontrolou verzie.
+- Odstránením bytu sa vo webovej verzii odstránia aj jeho prílohy. Súbory sa neukladajú do GitHubu. V cloude sú súkromne v Supabase Storage; v lokálnom režime sú iba v prehliadači, kde zmena zariadenia vyžaduje prenos zálohy a vymazanie údajov webu odstráni aj súbory.
 
 
 ## Grafy nájomného a nákladov

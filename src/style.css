@@ -57,11 +57,15 @@
 .energy-card h3,.energy-card p{margin:0}.energy-card p{font-size:12px;color:#7c886e;overflow-wrap:anywhere}.energy-card>strong{font-size:24px}.energy-card>.secondary{margin-top:auto}
 @media(max-width:700px){.property-card{grid-template-columns:minmax(0,1fr)}.property-card .property-illustration{height:110px;min-height:0}.demo-banner{align-items:flex-start;flex-direction:column}.detail-page-heading{flex-wrap:wrap;gap:12px}}
 
-.card-controls{display:flex;flex-wrap:wrap;align-items:end;gap:12px;padding:16px 0;position:relative;z-index:2;cursor:default}
-.card-controls label{display:flex;flex-direction:column;gap:6px;font-size:11px;flex:1 1 160px;min-width:0}
-.card-controls select{width:100%;max-width:100%;padding:10px;border:1px solid #dfe5d8;border-radius:6px;background:#fcfdf9;color:#3b5230;min-height:39px}
-.card-controls>small{width:100%;font-size:10px;line-height:1.6;color:#7e8b70}
-.card-controls .rent-received{background:#edf3e6;color:#496539}
 .card-image{width:100%;height:100%;position:absolute;inset:0;object-fit:cover}
 .card-image.floorplan{object-fit:contain;background:#f7f8f5}
 .card-layout{width:100%;height:100%;position:absolute;inset:0;background:#f7f8f5;padding:30px 10px 10px}
+
+.rent-payments{margin:28px 0}
+.rent-payments label,.preview-settings label{display:flex;flex-direction:column;gap:7px;font-size:12px}
+.rent-payments .section-heading>label{max-width:220px}
+.preview-settings{padding:18px;border:1px solid var(--line);border-radius:8px;margin-bottom:24px;background:#f7f8f5}
+.preview-settings select{width:100%;max-width:420px;padding:11px;border:1px solid #dfe5d8;border-radius:6px;background:white;color:#3b5230}
+.preview-settings .form-hint{margin-bottom:0}
+.chart-options select{max-width:100%}
+@media(max-width:650px){.rent-payments .section-heading{align-items:stretch;flex-direction:column}.rent-payments .section-heading>label{max-width:none}.chart-options label{min-width:0;max-width:100%}}

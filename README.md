@@ -89,6 +89,8 @@ Pri ukážkových bytoch je banner **Ukončiť ukážku**. Potvrdenie odstráni 
 
 ### Náhľad karty a prijaté nájomné
 
-Na karte bytu vyberte mesiac a kliknite na **Označiť prijaté nájomné**. Opätovné kliknutie označenie zruší iba za zvolený mesiac. Ide o manuálnu evidenciu prijatia; plánovaný zisk a graf dohodnutého nájomného sa nemenia.
+V Platbách alebo v detaile bytu v sekcii Energie a platby vyberte mesiac a kliknite na **Označiť prijaté nájomné**. Opätovné kliknutie označenie zruší iba za zvolený mesiac. Ide o manuálnu evidenciu prijatia; plánovaný zisk a graf dohodnutého nájomného sa nemenia.
 
-**Náhľad karty** umožňuje pôvodnú ilustráciu, konkrétnu nahratú fotku alebo pôdorys (nahratý obrázok, prípadne uložený nákres). Pri chýbajúcom súbore sa zobrazí ilustrácia. Fotky pridáte otvorením karty a výberom sekcie Fotografie. Pôvodné tlačidlo „Dokumenty, fotky a pôdorys“ bolo odstránené; sekcie sú naďalej dostupné v detaile bytu. Nastavenie náhľadu a mesačné označenia sa ukladajú spolu s existujúcimi údajmi a zálohami, v cloudovom režime cez rovnakú revíznu ochranu Supabase. Databázová migrácia nie je potrebná.
+**Náhľad karty** v sekciách Fotografie a Pôdorys umožňuje pôvodnú ilustráciu, konkrétnu nahratú fotku alebo pôdorys (nahratý obrázok, prípadne uložený nákres). Pri chýbajúcom súbore sa zobrazí ilustrácia. Fotky pridáte otvorením karty a výberom sekcie Fotografie. Pôvodné tlačidlo „Dokumenty, fotky a pôdorys“ bolo odstránené; sekcie sú naďalej dostupné v detaile bytu. Nastavenie náhľadu a mesačné označenia sa ukladajú spolu s existujúcimi údajmi a zálohami, v cloudovom režime cez rovnakú revíznu ochranu Supabase. Databázová migrácia nie je potrebná.
+
+Grafy predvolene zobrazujú skutočnosť: iba mesiace označené ako prijaté nájomné a uhradené náklady. Prepínač Plán zobrazí dohodnuté nájomné a splatné náklady aj do budúcnosti. Graf konkrétneho bytu je aj v jeho detaile v sekcii Energie a platby. Hypotéku zadáte ako kategóriu platby; celá splátka je v prehľade výdavkov.

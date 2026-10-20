@@ -137,3 +137,25 @@ test('rent receipt is independent by property and month and preserves legacy rec
  assert.ok(!validData({...data,properties:[{...first,cardPreview:'bad'}]}));
  assert.throws(()=>toggleRentReceived(first,'2026-00'));
 });
+
+test('actual income only includes explicitly received months while plan includes future rent', () => {
+ const properties = [{id:'a',rent:620,trackingStart:'2026-01',rentReceivedMonths:['2026-10']},{id:'b',rent:800,trackingStart:'2026-01'}];
+ const actual = annualOverview(properties,[],2026,'paid');
+ assert.equal(actual[9].rent,620);
+ assert.equal(actual[10].rent,0);assert.equal(actual[11].rent,0);
+ assert.equal(actual.reduce((s,m)=>s+m.rent,0),620);
+ assert.equal(annualOverview(properties,[],2027,'paid').reduce((s,m)=>s+m.rent,0),0);
+ assert.equal(annualOverview(properties,[],2026,'due')[11].rent,1420);
+ const undone=properties.map(p=>({...p,rentReceivedMonths:[]}));
+ assert.equal(annualOverview(undone,[],2026,'paid')[9].rent,0);
+});
+
+test('mortgage is a valid recurring expense included in planned and paid charts', async () => {
+ const {demoData,validData,propertyFinance}=await import('./data.js');
+ const data=demoData();data.payments=[{id:'mortgage',propertyId:'p1',category:'Hypotéka',supplier:'Banka',amount:400,day:10,frequency:'monthly',paidMonths:['2026-10']}];
+ assert.ok(validData(data));
+ assert.equal(propertyFinance(data.properties[0],data.payments).cost,400);
+ assert.equal(annualOverview(data.properties,data.payments,2026,'paid')[9].costs,400);
+ assert.equal(annualOverview(data.properties,data.payments,2026,'paid')[10].costs,0);
+ assert.equal(annualOverview(data.properties,data.payments,2026,'due')[10].costs,400);
+});

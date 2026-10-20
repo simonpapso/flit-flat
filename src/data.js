@@ -1,4 +1,4 @@
-export const categories = ['Elektrina', 'Plyn', 'Voda', 'Spoločné priestory', 'Internet', 'Poistenie', 'Údržba', 'Oprava', 'Nové spotrebiče', 'Iné'];
+export const categories = ['Elektrina', 'Plyn', 'Voda', 'Spoločné priestory', 'Internet', 'Poistenie', 'Údržba', 'Oprava', 'Nové spotrebiče', 'Hypotéka', 'Iné'];
 export const money = value => new Intl.NumberFormat('sk-SK', { style: 'currency', currency: 'EUR', maximumFractionDigits: 2 }).format(value);
 export const monthKey = date => `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
 export const frequencies = { monthly: { label: 'Mesačne', months: 1 }, quarterly: { label: 'Kvartálne', months: 3 }, yearly: { label: 'Ročne', months: 12 }, once: { label: 'Jednorazovo', months: null } };
@@ -81,7 +81,7 @@ export function annualOverview(properties, payments, year, mode = 'due') {
     const activeProperties = properties.filter(p => (p.trackingStart ?? '0000-01') <= month);
     const ids = new Set(activeProperties.map(p => p.id));
     const costs = payments.filter(p => ids.has(p.propertyId) && isDueInMonth(p, month) && (mode !== 'paid' || p.paidMonths.includes(month))).reduce((sum, p) => sum + p.amount, 0);
-    const rent = activeProperties.reduce((sum, p) => sum + p.rent, 0);
+    const rent = activeProperties.filter(p => mode !== 'paid' || (p.rentReceivedMonths || []).includes(month)).reduce((sum, p) => sum + p.rent, 0);
     return { month, rent, costs, balance: rent - costs, active: activeProperties.length > 0 };
   });
 }

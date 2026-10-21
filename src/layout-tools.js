@@ -22,7 +22,7 @@ export function fitItem(item, patch = {}, grid = 0) {
   return next;
 }
 export function makeItem(preset, id, count=0) {
-  return fitItem({id,kind:preset.kind,name:preset.name,x:10+(count%5)*3,y:10+(count%5)*3,w:preset.w,h:preset.h,rotation:0,quantity:1,note:''});
+  return fitItem({id,kind:preset.kind,name:preset.name,x:10+(count%5)*3,y:10+(count%5)*3,w:preset.w,h:preset.h,shape:preset.shape || 'rect',rotation:0,quantity:1,note:''});
 }
 export function duplicateItem(item,id) {
   return fitItem({...item,id,name:(item.name+' – kópia').slice(0,100)}, {x:item.x+3,y:item.y+3});

@@ -35,3 +35,19 @@ test('resizing keeps the upper left corner fixed even when snapping against an e
  assert.equal(next.w,43);assert.equal(next.h,39);
  assert.ok(validLayout({items:[next]}));
 });
+
+test('non rectangular shapes survive edits, duplication and serialization with legacy compatibility', async()=>{
+ const {layoutShapes,shapeOf,shapeClip}=await import('./layout-shapes.js');
+ for(const shape of layoutShapes){
+  const item=makeItem({...presets[0],shape:shape.id},'room');
+  assert.equal(item.shape,shape.id);
+  const edited=fitItem(item,{w:35,h:25,rotation:90});
+  const copy=duplicateItem(edited,'copy');
+  assert.equal(copy.shape,shape.id);
+  assert.ok(validLayout(JSON.parse(JSON.stringify({items:[edited,copy]}))));
+  if(shape.points)assert.ok(shapeClip(shape.id).startsWith('polygon('));
+ }
+ const old=makeItem(presets[0],'old');delete old.shape;
+ assert.equal(shapeOf(old),'rect');assert.ok(validLayout({items:[old]}));
+ assert.ok(!validLayout({items:[{...old,shape:'unsupported'}]}));
+});

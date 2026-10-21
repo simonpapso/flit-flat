@@ -1,3 +1,4 @@
+import { layoutShapes } from './layout-shapes.js';
 export const categories = ['Elektrina', 'Plyn', 'Voda', 'Spoločné priestory', 'Internet', 'Poistenie', 'Údržba', 'Oprava', 'Nové spotrebiče', 'Hypotéka', 'Iné'];
 export const money = value => new Intl.NumberFormat('sk-SK', { style: 'currency', currency: 'EUR', maximumFractionDigits: 2 }).format(value);
 export const monthKey = date => `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
@@ -69,6 +70,7 @@ export function validLayout(layout) {
   return layout && Array.isArray(layout.items) && layout.items.length <= 300
     && new Set(layout.items.map(x => x.id)).size === layout.items.length
     && layout.items.every(x => typeof x.id === 'string' && ['room','furniture'].includes(x.kind)
+      && (x.shape === undefined || layoutShapes.some(s => s.id === x.shape))
       && typeof x.name === 'string' && x.name.length <= 100 && typeof x.note === 'string' && x.note.length <= 2000
       && ['x','y','w','h','rotation'].every(k => Number.isFinite(x[k]))
       && x.x >= 0 && x.y >= 0 && x.w >= 5 && x.h >= 5 && x.x+x.w <= 100.001 && x.y+x.h <= 100.001

@@ -98,3 +98,12 @@
 .floor-item-list button.selected{border-color:#294f3d;background:#edf3e6}.floor-item-list span{overflow-wrap:anywhere}.floor-item-list small{font-size:9px;white-space:nowrap}
 @media(max-width:1100px){.floor-workspace{grid-template-columns:minmax(0,1fr)}.floor-inspector{width:100%}.floor-item-list{max-height:180px}}
 @media(max-width:600px){.floor-toolbar .primary{width:100%}.floor-toolbar>label{width:100%;flex-basis:100%}.floor-view-tools>div{margin-left:0}.floor-scroll{max-height:500px}}
+
+.floor-item,.floor-item.furniture{border:0;background:transparent;border-radius:0;pointer-events:none}
+.floor-shape{position:absolute;inset:0;width:100%;height:100%;overflow:visible;pointer-events:none}
+.floor-item-body,.floor-resize{pointer-events:auto}
+.floor-item-body{position:relative}
+.floor-item.shape-l .floor-item-body{justify-content:flex-end;align-items:flex-start;padding-bottom:8%;padding-left:5%}
+.floor-item.shape-t .floor-item-body{justify-content:flex-start;padding-top:5%}
+.floor-item.shape-u .floor-item-body{justify-content:flex-end;padding-bottom:5%}
+.floor-inspector select{width:100%;padding:9px;border:1px solid #dfe5d8;border-radius:6px;background:#fff;color:#3b5230}

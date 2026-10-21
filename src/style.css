@@ -121,3 +121,11 @@
 .tenant-summary>article{flex:1 1 260px;min-width:0;max-width:100%;margin-bottom:0}
 .tenant-summary dl{grid-template-columns:110px minmax(0,1fr)}
 .tenant-grid{grid-template-columns:minmax(0,1fr)}
+
+.floorplan-overview{margin:24px 0 28px;background:#fff;border:1px solid var(--line);border-radius:10px;padding:20px}
+.floorplan-overview>.section-heading>span{font-size:11px;color:#87937c}
+.floorplan-saved-view{border:1px solid var(--line);border-radius:8px;background:#fafbf8;overflow:hidden}
+.floorplan-saved-view>svg{display:block;width:100%;max-height:65vh;min-height:240px;aspect-ratio:1;margin:auto}
+.floorplan-overview-actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:16px}
+.floorplan-editor-panel{scroll-margin-top:20px}
+@media(max-width:600px){.floorplan-overview{padding:13px}.floorplan-overview-actions>button{flex:1;white-space:normal}}

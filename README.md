@@ -108,3 +108,7 @@ V úprave bytu pridajte každého nájomcu osobitne: meno, telefón, e-mail, rok
 Pri tvare L je všetkých šesť strán označených A–F. Dĺžky možno meniť v paneli v percentách plochy; súvisiace strany sa upravia tak, aby bol pôdorys uzavretý. Prvok Dvere má voľbu ľavých/pravých pántov, otvorenia nad/pod základnú hranu a otočenia po 90°. Oblúk zobrazuje smer otvárania.
 
 Označiť všetky izby vyberie miestnosti bez nábytku; Označiť celý pôdorys vyberie aj nábytok a dvere. Výber potiahnete spoločne alebo posuniete tlačidlami šípok v paneli. Rozostupy ostávajú zachované aj na okrajoch. Shift/Ctrl/Cmd + klik mení výber jednotlivých prvkov. Úpravy potvrďte cez Uložiť pôdorys; nové údaje sú súčasťou existujúceho cloudového ukladania a záloh.
+
+### Prezeranie uloženého pôdorysu
+
+V sekcii Pôdorys a nábytok sa uložený nákres alebo nahratý podklad zobrazuje hore ako hotový náhľad. Pod ním sú tlačidlá Opraviť pôdorys a Nahrať pôdorys. Editor sa otvorí až po kliknutí na opravu (pri prázdnom byte Vytvoriť pôdorys). Úspešné uloženie ho zavrie a zobrazí aktuálny náhľad. Zrušenie úprav po potvrdení zahodí iba neuložený nákres; nahrané súbory sa naďalej ukladajú okamžite.

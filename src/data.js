@@ -1,3 +1,4 @@
+import {validTenants} from './tenants.js';
 import { layoutShapes } from './layout-shapes.js';
 export const categories = ['Elektrina', 'Plyn', 'Voda', 'Spoločné priestory', 'Internet', 'Poistenie', 'Údržba', 'Oprava', 'Nové spotrebiče', 'Hypotéka', 'Iné'];
 export const money = value => new Intl.NumberFormat('sk-SK', { style: 'currency', currency: 'EUR', maximumFractionDigits: 2 }).format(value);
@@ -54,6 +55,7 @@ export function validData(data) {
     && new Set(data.properties.map(p => p.id)).size === data.properties.length
     && new Set(data.payments.map(p => p.id)).size === data.payments.length
     && data.properties.every(p => typeof p.id === 'string' && typeof p.name === 'string' && p.name.trim() && ['address', 'type', 'area', 'tenant', 'email', 'phone', 'note'].every(k => typeof p[k] === 'string') && Number.isFinite(p.rent) && p.rent >= 0
+      && (p.tenants === undefined || validTenants(p.tenants))
       && (p.trackingStart === undefined || typeof p.trackingStart === 'string' && /^(19|[2-9]\d)\d{2}-(0[1-9]|1[0-2])$/.test(p.trackingStart))
       && (p.cardPreview === undefined || p.cardPreview === 'illustration' || p.cardPreview === 'floorplan' || typeof p.cardPreview === 'string' && /^photo:.+/.test(p.cardPreview))
       && (p.rentReceivedMonths === undefined || Array.isArray(p.rentReceivedMonths) && p.rentReceivedMonths.every(m => typeof m === 'string' && /^(19|[2-9]\d)\d{2}-(0[1-9]|1[0-2])$/.test(m)))
@@ -69,8 +71,12 @@ export function validData(data) {
 export function validLayout(layout) {
   return layout && Array.isArray(layout.items) && layout.items.length <= 300
     && new Set(layout.items.map(x => x.id)).size === layout.items.length
-    && layout.items.every(x => typeof x.id === 'string' && ['room','furniture'].includes(x.kind)
+    && layout.items.every(x => typeof x.id === 'string' && ['room','furniture','door'].includes(x.kind)
       && (x.shape === undefined || layoutShapes.some(s => s.id === x.shape))
+      && (x.lWidth === undefined || Number.isFinite(x.lWidth) && x.lWidth>=5 && x.lWidth<=95)
+      && (x.lHeight === undefined || Number.isFinite(x.lHeight) && x.lHeight>=5 && x.lHeight<=95)
+      && (x.doorHinge === undefined || ['left','right'].includes(x.doorHinge))
+      && (x.doorSwing === undefined || ['in','out'].includes(x.doorSwing))
       && typeof x.name === 'string' && x.name.length <= 100 && typeof x.note === 'string' && x.note.length <= 2000
       && ['x','y','w','h','rotation'].every(k => Number.isFinite(x[k]))
       && x.x >= 0 && x.y >= 0 && x.w >= 5 && x.h >= 5 && x.x+x.w <= 100.001 && x.y+x.h <= 100.001

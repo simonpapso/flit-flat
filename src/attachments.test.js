@@ -43,3 +43,12 @@ test('nebezpečné typy a neplatné prílohy v zálohe sú odmietnuté',async()=
  const archive=zipSync({'backup.json':strToU8(JSON.stringify(payload)),'files/file1':strToU8('%PDF-1.4')});
  await assert.rejects(parseBackup(new File([archive],'invalid.zip')));
 });
+
+test('ZIP backup round trip preserves several tenants, L sides and door opening',async()=>{
+ const {withTenants}=await import('./tenants.js');const {presets,makeItem,setLSide}=await import('./layout-tools.js');
+ const data=demoData();
+ data.properties[0]=withTenants({...data.properties[0],layout:{items:[setLSide(makeItem({...presets[0],shape:'l'},'l'),2,20),{...makeItem(presets.find(x=>x.kind==='door'),'door'),doorHinge:'right',doorSwing:'out'}]}},[{id:'one',name:'Anna',phone:'0900',email:'a@example.test',birthYear:1990,job:'Učiteľka'},{id:'two',name:'Peter',phone:'0911',email:'p@example.test',birthYear:null,job:''}]);
+ await restoreWebData(key,data,[]);
+ const archive=await makeBackup(data),parsed=await parseBackup(new File([archive],'backup.zip'));
+ assert.deepEqual(parsed.data,data);assert.deepEqual(parsed.files,[]);
+});

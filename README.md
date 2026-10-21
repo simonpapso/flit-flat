@@ -100,3 +100,11 @@ Grafy predvolene zobrazujú skutočnosť: iba mesiace označené ako prijaté n�
 V sekcii Pôdorys vyberte predvoľbu miestnosti alebo nábytku a kliknite na Pridať. Prvky presuniete myšou alebo prstom; vybraný neotočený prvok zväčšíte úchytom v pravom dolnom rohu. Zapnúť možno prichytávanie po 2 % plochy a mriežku, priblíženie je 100–200 %. Zoznam všetkých prvkov umožní vybrať aj prekrytú miestnosť. V paneli upravíte názov, polohu a rozmery v percentách, otočenie, kópiu, počet kusov a poznámku. Šípky posúvajú zameraný prvok o 1 %, so Shiftom o 5 %. Posledných 50 zmien možno vrátiť tlačidlami Späť a Znova; odstránenie možno takisto vrátiť. Zmeny potvrďte cez Uložiť pôdorys. Nákres je orientačný, bez fyzickej mierky. Existujúce položky, podklady, zálohy a ukladanie v Supabase ostávajú kompatibilné.
 
 V editore možno pred pridaním alebo pri úprave existujúceho prvku vybrať aj tvar L, T, U alebo kruh/ovál. Šírka a výška určujú ohraničujúci rozmer; otočením zmeníte orientáciu výrezu. Tvary sú pripravené predvoľby, nie voľné kreslenie vrcholov. Zobrazujú sa aj v náhľade karty a zachovávajú sa pri kopírovaní, ukladaní a zálohovaní. Pôvodné prvky bez údaja o tvare zostávajú obdĺžnikové.
+
+### Viac nájomcov, strany L, dvere a skupinový posun
+
+V úprave bytu pridajte každého nájomcu osobitne: meno, telefón, e-mail, rok narodenia a prácu. Vek je vypočítaný ako vek dosiahnutý v aktuálnom roku; presný vek bez dátumu narodenia nie je určený. Kontakty sú v detaile bytu aj v Nájomníkoch. Existujúci nájomca a jeho kontakty sa pri úprave predvyplnia. Nájomné je stále za celý byt, nie za každú osobu.
+
+Pri tvare L je všetkých šesť strán označených A–F. Dĺžky možno meniť v paneli v percentách plochy; súvisiace strany sa upravia tak, aby bol pôdorys uzavretý. Prvok Dvere má voľbu ľavých/pravých pántov, otvorenia nad/pod základnú hranu a otočenia po 90°. Oblúk zobrazuje smer otvárania.
+
+Označiť všetky izby vyberie miestnosti bez nábytku; Označiť celý pôdorys vyberie aj nábytok a dvere. Výber potiahnete spoločne alebo posuniete tlačidlami šípok v paneli. Rozostupy ostávajú zachované aj na okrajoch. Shift/Ctrl/Cmd + klik mení výber jednotlivých prvkov. Úpravy potvrďte cez Uložiť pôdorys; nové údaje sú súčasťou existujúceho cloudového ukladania a záloh.

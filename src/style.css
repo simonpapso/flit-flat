@@ -158,3 +158,7 @@
 .floor-item-list button span{min-width:0}
 .floor-item.room.chosen{z-index:0}.floor-item.furniture{z-index:1}.floor-item.furniture.chosen{z-index:3}
 .floor-item-body{min-width:0;min-height:0}
+.floor-item-label{position:absolute;pointer-events:none;text-align:center;display:flex;flex-direction:column;align-items:center;gap:2px;color:#294f3d;font-size:11px;line-height:1.3;transform-origin:center;text-shadow:0 1px 2px white,0 -1px 2px white}
+.floor-item-label strong{font-weight:600;overflow-wrap:anywhere;max-width:100%}.floor-item-label small{font-size:9px}
+.floor-item-label.opening-label{width:max-content!important;max-width:110px;font-size:9px;background:#ffffffdd;border-radius:3px;padding:1px 3px}
+.floor-item.window{z-index:2}.floor-item.window.chosen{z-index:4}

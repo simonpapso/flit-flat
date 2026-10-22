@@ -135,3 +135,31 @@ test('snapped resizing keeps an off-grid origin fixed',async()=>{
  const resized=snapItems([item],['room'],4,4,{grid:2,objects:false,resize:true}).items[0];
  assert.deepEqual([resized.x,resized.y,resized.w,resized.h],[13,17,24,24]);
 });
+
+test('windows can be drawn, resized to one percent, rotated, copied and reloaded',async()=>{
+ const {drawItem,snapItems}=await import('./layout-tools.js');
+ const preset=presets.find(p=>p.kind==='window');assert.ok(preset);
+ const window=drawItem({...preset,shape:'l'},'window',{x:10,y:10},{x:30,y:13});
+ assert.equal(window.shape,'rect');
+ for(const rotation of [0,90,180,270]){
+  const edited=fitItem(window,{rotation,h:1});
+  const copy=duplicateItem(edited,'copy');
+  assert.ok(validLayout(JSON.parse(JSON.stringify({items:[edited,copy]}))));
+  assert.equal(copy.kind,'window');assert.equal(copy.h,1);assert.equal(copy.rotation,rotation);
+  const snapped=snapItems([edited,{...makeItem(presets[0],'room'),x:40}],['window'],0,0);
+  assert.ok(validLayout({items:snapped.items}));
+ }
+});
+test('label anchors follow rotation while their available width follows visual bounds',async()=>{
+ const {labelGeometry}=await import('./layout-tools.js');
+ const base={...makeItem(presets[0],'label'),x:10,y:20,w:40,h:20};
+ for(const rotation of [0,90,180,270]){
+  const label=labelGeometry({...base,rotation});
+  assert.equal(label.x,30);assert.equal(label.y,30);
+  assert.equal(label.width,rotation%180?20:40);
+ }
+ const bottom=labelGeometry({...base,shape:'l',rotation:0});
+ const turned=labelGeometry({...base,shape:'l',rotation:90});
+ assert.equal(bottom.y,36.4);
+ assert.ok(Math.abs(turned.x-23.6)<0.001);assert.equal(turned.y,30);
+});

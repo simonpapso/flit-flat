@@ -71,7 +71,7 @@ export function validData(data) {
 export function validLayout(layout) {
   return layout && Array.isArray(layout.items) && layout.items.length <= 300
     && new Set(layout.items.map(x => x.id)).size === layout.items.length
-    && layout.items.every(x => typeof x.id === 'string' && ['room','furniture','door'].includes(x.kind)
+    && layout.items.every(x => typeof x.id === 'string' && ['room','furniture','door','window'].includes(x.kind)
       && (x.color === undefined || typeof x.color === 'string' && /^#[0-9a-f]{6}$/i.test(x.color))
       && (x.shape === undefined || layoutShapes.some(s => s.id === x.shape))
       && (x.lWidth === undefined || Number.isFinite(x.lWidth) && x.lWidth>=5 && x.lWidth<=95)

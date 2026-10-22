@@ -13,6 +13,7 @@ export const presets = [
   {name:'Skriňa',kind:'furniture',w:18,h:8},
   {name:'Chladnička',kind:'furniture',w:8,h:8},
   {name:'Dvere',kind:'door',w:12,h:12},
+  {name:'Okno',kind:'window',w:16,h:3},
 ];
 const clamp=(n,min,max)=>Math.max(min,Math.min(max,n));
 const round=n=>Math.round(n*10)/10;
@@ -26,7 +27,7 @@ export function fitItem(item, patch = {}, grid = 0) {
   return next;
 }
 export function makeItem(preset, id, count=0) {
-  return fitItem({id,kind:preset.kind,name:preset.name,x:10+(count%5)*3,y:10+(count%5)*3,w:preset.w,h:preset.h,shape:preset.kind==='door'?'rect':preset.shape || 'rect',...(preset.kind==='door'?{doorHinge:'left',doorSwing:'in'}:{}),...(preset.kind==='room'?{color:roomColors[count%roomColors.length]}:{}),rotation:0,quantity:1,note:''});
+  return fitItem({id,kind:preset.kind,name:preset.name,x:10+(count%5)*3,y:10+(count%5)*3,w:preset.w,h:preset.h,shape:['door','window'].includes(preset.kind)?'rect':preset.shape || 'rect',...(preset.kind==='door'?{doorHinge:'left',doorSwing:'in'}:{}),...(preset.kind==='room'?{color:roomColors[count%roomColors.length]}:{}),rotation:0,quantity:1,note:''});
 }
 export function duplicateItem(item,id) {
   return fitItem({...item,id,name:(item.name+' – kópia').slice(0,100)}, {x:item.x+3,y:item.y+3});
@@ -85,4 +86,19 @@ export function drawItem(preset,id,start,end,count=0,grid=0) {
  const align=n=>clamp(grid?Math.round(n/grid)*grid:n,0,100);
  const x1=align(start.x),y1=align(start.y),x2=align(end.x),y2=align(end.y);
  return fitItem(makeItem(preset,id,count),{x:Math.min(x1,x2,99),y:Math.min(y1,y2,99),w:Math.max(1,Math.abs(x2-x1)),h:Math.max(1,Math.abs(y2-y1))});
+}
+
+
+export const itemKindLabel = kind => ({room:'Miestnosť',furniture:'Nábytok',door:'Dvere',window:'Okno'})[kind];
+export const itemLayer = item => item.kind === 'room' ? 0 : item.kind === 'furniture' ? 1 : 2;
+
+// Position the label in the solid part of a shape, then rotate its anchor only.
+// Text itself stays horizontal in the editor and both saved previews.
+export function labelGeometry(item) {
+ const shape=item.shape || 'rect';
+ const localX=50, localY=shape==='l'||shape==='u'?82:shape==='t'?20:50;
+ const angle=(item.rotation||0)*Math.PI/180;
+ const dx=(localX/100-0.5)*item.w,dy=(localY/100-0.5)*item.h;
+ const turned=item.rotation===90||item.rotation===270;
+ return {localX,localY,x:item.x+item.w/2+dx*Math.cos(angle)-dy*Math.sin(angle),y:item.y+item.h/2+dx*Math.sin(angle)+dy*Math.cos(angle),width:turned?item.h:item.w};
 }

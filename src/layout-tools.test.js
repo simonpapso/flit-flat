@@ -85,3 +85,53 @@ test('doors preserve hinge, swing and rotation when copied and serialized',()=>{
  }
  assert.ok(!validLayout({items:[{...door,doorHinge:'invalid'}]}));
 });
+
+test('one percent rooms and colors survive resizing and serialized validation',async()=>{
+ const {itemFill}=await import('./layout-tools.js');
+ const item=fitItem(makeItem(presets[0],'tiny'),{x:99,y:99,w:1,h:1,color:'#abcdef'});
+ assert.equal(item.w,1);assert.equal(item.h,1);assert.equal(item.x,99);
+ assert.ok(validLayout(JSON.parse(JSON.stringify({items:[item]}))));
+ assert.equal(itemFill(duplicateItem(item,'copy')),'#abcdefcc');
+ assert.ok(!validLayout({items:[{...item,w:0.9}]}));
+ assert.ok(!validLayout({items:[{...item,color:'url(invalid)'}]}));
+});
+test('snapping aligns furniture and rooms to edges, centers and resizing targets',async()=>{
+ const {snapItems}=await import('./layout-tools.js');
+ const a={...makeItem(presets[0],'a'),x:10,y:10,w:10,h:10};
+ const b={...makeItem(presets[5],'b'),x:40,y:40,w:20,h:20};
+ const result=snapItems([a,b],['a'],19.4,0,{threshold:1});
+ assert.equal(result.items[0].x+result.items[0].w,b.x);
+ assert.ok(result.guides.some(g=>g.axis==='x'&&g.value===40));
+ const center=snapItems([a,b],['a'],34.6,0,{threshold:1});
+ assert.equal(center.items[0].x+5,50);
+ const resize=snapItems([a,b],['a'],19.4,0,{resize:true,threshold:1});
+ assert.equal(resize.items[0].w,30);assert.equal(resize.items[0].x,10);
+ const free=snapItems([a,b],['a'],19.4,0,{objects:false});
+ assert.equal(free.items[0].x,29.4);assert.deepEqual(free.guides,[]);
+ assert.deepEqual(result.items[1],b);
+});
+test('snapping preserves a group and respects rotated target bounds',async()=>{
+ const {snapItems}=await import('./layout-tools.js');
+ const a={...makeItem(presets[0],'a'),x:5,y:5,w:10,h:10};
+ const b={...a,id:'b',x:20};
+ const c={...a,id:'c',x:50,y:50,w:20,h:10,rotation:90};
+ const result=snapItems([a,b,c],['a','b'],24.6,0,{threshold:1});
+ assert.equal(result.items[1].x+10,55);
+ assert.equal(result.items[1].x-result.items[0].x,15);
+ assert.ok(validLayout({items:result.items}));
+});
+test('drawing in every direction handles grid and canvas edges',async()=>{
+ const {drawItem}=await import('./layout-tools.js');
+ for(const [start,end] of [[{x:20,y:30},{x:5,y:8}],[{x:99.8,y:99.8},{x:110,y:120}],[{x:0,y:0},{x:0.2,y:0.2}],[{x:50,y:50},{x:-10,y:-20}]]){
+  const item=drawItem(presets[0],'draw',start,end,0,1);
+  assert.ok(validLayout({items:[item]}),JSON.stringify(item));
+ }
+ const item=drawItem(presets[0],'draw',{x:30,y:40},{x:10,y:15});
+ assert.deepEqual([item.x,item.y,item.w,item.h],[10,15,20,25]);
+});
+test('snapped resizing keeps an off-grid origin fixed',async()=>{
+ const {snapItems}=await import('./layout-tools.js');
+ const item={...makeItem(presets[0],'room'),x:13,y:17,w:20,h:20};
+ const resized=snapItems([item],['room'],4,4,{grid:2,objects:false,resize:true}).items[0];
+ assert.deepEqual([resized.x,resized.y,resized.w,resized.h],[13,17,24,24]);
+});

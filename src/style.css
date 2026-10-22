@@ -141,3 +141,20 @@
 .connection-bar button:hover{background:#dfe8d6}
 .connection-bar button svg{width:18px;height:18px}
 }
+
+.floor-stage.with-grid{background-image:none;background-size:contain}
+.floor-grid-overlay{position:absolute;inset:0;pointer-events:none;background-image:linear-gradient(#72856535 1px,transparent 1px),linear-gradient(90deg,#72856535 1px,transparent 1px);background-size:var(--grid-step) var(--grid-step);z-index:5}
+.floor-stage.is-drawing{cursor:crosshair;touch-action:none}
+.floor-stage.is-drawing .floor-item-body,.floor-stage.is-drawing .floor-resize{pointer-events:none}
+.floor-guide{position:absolute;pointer-events:none;z-index:7;background:#c76c31}
+.floor-guide.guide-x{top:0;bottom:0;width:1px}.floor-guide.guide-y{left:0;right:0;height:1px}
+.floor-draft{position:absolute;pointer-events:none;z-index:6;outline:2px dashed #294f3d}
+.floor-draft span{position:absolute;top:0;left:0;background:#fff;padding:3px;font-size:11px;white-space:nowrap}
+.floor-view-tools select{padding:6px;border:1px solid var(--line);border-radius:5px;background:white;color:#3d5532}
+.floor-color-control input[type=color]{width:100%;height:36px;padding:3px;cursor:pointer}
+.floor-color-swatches{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+.floor-color-swatches button{width:24px;height:24px;min-height:24px;padding:0;border:1px solid #9ca992;border-radius:5px}
+.floor-color-swatches button[aria-pressed=true]{outline:2px solid #294f3d;outline-offset:2px}
+.floor-item-list button span{min-width:0}
+.floor-item.room.chosen{z-index:0}.floor-item.furniture{z-index:1}.floor-item.furniture.chosen{z-index:3}
+.floor-item-body{min-width:0;min-height:0}

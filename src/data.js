@@ -72,6 +72,7 @@ export function validLayout(layout) {
   return layout && Array.isArray(layout.items) && layout.items.length <= 300
     && new Set(layout.items.map(x => x.id)).size === layout.items.length
     && layout.items.every(x => typeof x.id === 'string' && ['room','furniture','door'].includes(x.kind)
+      && (x.color === undefined || typeof x.color === 'string' && /^#[0-9a-f]{6}$/i.test(x.color))
       && (x.shape === undefined || layoutShapes.some(s => s.id === x.shape))
       && (x.lWidth === undefined || Number.isFinite(x.lWidth) && x.lWidth>=5 && x.lWidth<=95)
       && (x.lHeight === undefined || Number.isFinite(x.lHeight) && x.lHeight>=5 && x.lHeight<=95)
@@ -79,7 +80,7 @@ export function validLayout(layout) {
       && (x.doorSwing === undefined || ['in','out'].includes(x.doorSwing))
       && typeof x.name === 'string' && x.name.length <= 100 && typeof x.note === 'string' && x.note.length <= 2000
       && ['x','y','w','h','rotation'].every(k => Number.isFinite(x[k]))
-      && x.x >= 0 && x.y >= 0 && x.w >= 5 && x.h >= 5 && x.x+x.w <= 100.001 && x.y+x.h <= 100.001
+      && x.x >= 0 && x.y >= 0 && x.w >= 1 && x.h >= 1 && x.x+x.w <= 100.001 && x.y+x.h <= 100.001
       && [0,90,180,270].includes(x.rotation) && Number.isInteger(x.quantity) && x.quantity >= 1 && x.quantity <= 999);
 }
 

@@ -47,7 +47,7 @@ test('nebezpečné typy a neplatné prílohy v zálohe sú odmietnuté',async()=
 test('ZIP backup round trip preserves several tenants, L sides and door opening',async()=>{
  const {withTenants}=await import('./tenants.js');const {presets,makeItem,setLSide}=await import('./layout-tools.js');
  const data=demoData();
- data.properties[0]=withTenants({...data.properties[0],layout:{items:[setLSide(makeItem({...presets[0],shape:'l'},'l'),2,20),{...makeItem(presets.find(x=>x.kind==='door'),'door'),doorHinge:'right',doorSwing:'out'},makeItem(presets.find(p=>p.kind==='window'),'window')]}},[{id:'one',name:'Anna',phone:'0900',email:'a@example.test',birthYear:1990,job:'Učiteľka'},{id:'two',name:'Peter',phone:'0911',email:'p@example.test',birthYear:null,job:''}]);
+ data.properties[0]=withTenants({...data.properties[0],managementServices:[{id:'service',name:'Upratovanie',description:'Spoločné priestory, každý pondelok'}],layout:{items:[setLSide(makeItem({...presets[0],shape:'l'},'l'),2,20),{...makeItem(presets.find(x=>x.kind==='door'),'door'),doorHinge:'right',doorSwing:'out'},makeItem(presets.find(p=>p.kind==='window'),'window')]}},[{id:'one',name:'Anna',phone:'0900',email:'a@example.test',birthYear:1990,job:'Učiteľka'},{id:'two',name:'Peter',phone:'0911',email:'p@example.test',birthYear:null,job:''}]);
  await restoreWebData(key,data,[]);
  const archive=await makeBackup(data),parsed=await parseBackup(new File([archive],'backup.zip'));
  assert.deepEqual(parsed.data,data);assert.deepEqual(parsed.files,[]);

@@ -58,7 +58,7 @@ test('multiple tenants, adjustable L and doors survive cloud reload with account
  const db=server(),one=createCloudBackend(client(db),{id:A}),two=createCloudBackend(client(db),{id:A});await one.load();
  const data=demoData();const room=setLSide(makeItem({...presets[0],shape:'l'},'room'),0,12);
  const door={...makeItem(presets.find(p=>p.kind==='door'),'door'),doorHinge:'right',doorSwing:'out'};
- data.properties[0]=withTenants({...data.properties[0],layout:{items:[room,door,{...makeItem(presets.find(p=>p.kind==='window'),'window'),rotation:90}]}},[{id:'a',name:'Anna',phone:'0900',email:'a@example.test',birthYear:1990,job:'Práca'},{id:'b',name:'Peter',phone:'0911',email:'p@example.test',birthYear:1988,job:'Technik'}]);
+ data.properties[0]=withTenants({...data.properties[0],managementServices:[{id:'service',name:'Upratovanie',description:'Spoločné priestory, každý pondelok'}],layout:{items:[room,door,{...makeItem(presets.find(p=>p.kind==='window'),'window'),rotation:90}]}},[{id:'a',name:'Anna',phone:'0900',email:'a@example.test',birthYear:1990,job:'Práca'},{id:'b',name:'Peter',phone:'0911',email:'p@example.test',birthYear:1988,job:'Technik'}]);
  await one.write(data);await two.load();assert.deepEqual(two.data,data);
  const other=createCloudBackend(client(db,B),{id:B});await other.load();assert.deepEqual(other.data,emptyData());
 });

@@ -4,6 +4,7 @@ import { allFiles, putFile, removeFile, createAttachment, fileKind } from './att
 import { getCloudBackend } from './cloud-runtime.js';
 import { money } from './data.js';
 import LayoutEditor from './LayoutEditor.jsx';
+import ManagementServices from './ManagementServices.jsx';
 import TenantSummary from './TenantSummary.jsx';
 import FloorplanOverview from './FloorplanOverview.jsx';
 const sizeLabel = n => n >= 1048576 ? `${(n / 1048576).toFixed(1)} MB` : `${Math.ceil(n / 1024)} kB`;
@@ -53,7 +54,7 @@ export default function PropertyDetail({property,onSave,onBack,onEdit,tab,onTabC
     <button className="text-btn detail-back" onClick={onBack} disabled={busy}><ArrowLeft size={16}/>Späť na nehnuteľnosti</button>
     <div className="detail-page-heading"><div><div className="eyebrow">VAŠA NEHNUTEĽNOSŤ</div><h1>{property.name}</h1><p className="detail-subtitle">{property.address || 'Adresa zatiaľ nie je vyplnená'}</p></div><button className="secondary" onClick={onEdit} disabled={busy}><Pencil size={16}/>Upraviť údaje bytu</button><button className="secondary danger" onClick={onDelete} disabled={busy}><Trash2 size={16}/>Odstrániť nehnuteľnosť</button></div>
     <div className="detail-summary"><div><small>NÁJOMCOVIA</small><strong>{property.tenant || 'Nepriradený'}</strong></div><div><small>NÁJOMNÉ / MESIAC</small><strong>{money(property.rent)}</strong></div><div><small>CENA NEHNUTEĽNOSTI</small><strong>{property.price != null ? money(property.price) : 'Nevyplnená'}</strong></div><div><small>DISPOZÍCIA</small><strong>{property.type || 'Byt'}{property.area && ` · ${property.area} m²`}</strong></div></div>
-    <TenantSummary property={property}/>
+    <TenantSummary property={property}/><ManagementServices property={property} onEdit={onEdit} busy={busy}/>
     <nav className="detail-tabs" aria-label="Sekcie bytu">{[['energy','Energie a platby',Zap,'energy'],['documents','Dokumenty',FileText,'document'],['photos','Fotografie',Image,'photo'],['layout','Pôdorys a nábytok',LayoutDashboard,'floorplan']].map(([key,label,Icon,kind])=><button className={tab===key?'secondary active':'secondary'} key={key} aria-current={tab===key?'page':undefined} onClick={()=>onTabChange(key)}><Icon size={18}/>{label}{key!=='energy' && <span className="detail-tab-count">{key==='layout'?items.filter(x=>x.kind==='furniture').length:files.filter(f=>f.kind===kind).length}</span>}</button>)}</nav>
     {tab==='layout'&&<FloorplanOverview items={property.layout?.items || []} floorUrl={floorUrl} hasFloor={!!floor} ready={ready} busy={busy} editing={editingLayout} name={property.name} onEdit={()=>setEditingLayout(true)} onUpload={()=>input.current?.click()} onCancel={cancelLayout} error={error}/>}
     {tab==='energy' ? energyContent : tab==='layout'&&!editingLayout ? <input ref={input} type="file" hidden accept="image/jpeg,image/png,image/webp,.jpg,.jpeg,.png,.webp" onChange={upload}/> : <div className="detail-page-body">

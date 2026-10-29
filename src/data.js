@@ -55,6 +55,9 @@ export function validData(data) {
     && new Set(data.properties.map(p => p.id)).size === data.properties.length
     && new Set(data.payments.map(p => p.id)).size === data.payments.length
     && data.properties.every(p => typeof p.id === 'string' && typeof p.name === 'string' && p.name.trim() && ['address', 'type', 'area', 'tenant', 'email', 'phone', 'note'].every(k => typeof p[k] === 'string') && Number.isFinite(p.rent) && p.rent >= 0
+      && (p.managementServices === undefined || Array.isArray(p.managementServices) && p.managementServices.length<=50
+        && new Set(p.managementServices.map(s=>s?.id)).size===p.managementServices.length
+        && p.managementServices.every(s=>s && typeof s.id==='string' && s.id.length>0 && typeof s.name==='string' && s.name.trim().length>0 && s.name.length<=100 && typeof s.description==='string' && s.description.length<=2000))
       && (p.tenants === undefined || validTenants(p.tenants))
       && (p.trackingStart === undefined || typeof p.trackingStart === 'string' && /^(19|[2-9]\d)\d{2}-(0[1-9]|1[0-2])$/.test(p.trackingStart))
       && (p.cardPreview === undefined || p.cardPreview === 'illustration' || p.cardPreview === 'floorplan' || typeof p.cardPreview === 'string' && /^photo:.+/.test(p.cardPreview))

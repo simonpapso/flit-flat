@@ -162,3 +162,7 @@
 .floor-item-label strong{font-weight:600;overflow-wrap:anywhere;max-width:100%}.floor-item-label small{font-size:9px}
 .floor-item-label.opening-label{width:max-content!important;max-width:110px;font-size:9px;background:#ffffffdd;border-radius:3px;padding:1px 3px}
 .floor-item.window{z-index:2}.floor-item.window.chosen{z-index:4}
+.management-services{margin:22px 0}.management-services .section-heading{flex-wrap:wrap;gap:12px}
+.management-services article{padding:16px;border:1px solid var(--line);border-radius:8px;margin:10px 0;background:#fff;overflow-wrap:anywhere}
+.management-services article p{white-space:pre-wrap;line-height:1.7;margin-top:8px;color:#62705d;font-size:12px}
+.management-services-fields{margin:22px 0}.management-services-fields>.secondary{margin-bottom:16px}

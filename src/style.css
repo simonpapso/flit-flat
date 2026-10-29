@@ -170,3 +170,5 @@
 .management-service-link>span{display:flex;align-items:center;gap:7px;font-size:12px}.management-service-link:hover strong{text-decoration:underline}
 .management-services article>.text-btn{margin-top:10px}
 @media(max-width:600px){.management-service-link{align-items:flex-start;flex-direction:column}}
+.detail-page .detail-tabs{overflow-x:auto;scrollbar-width:thin;gap:20px}.detail-page .detail-tabs>.secondary{flex-shrink:0}
+@media(max-width:700px){.detail-page .detail-tabs{gap:16px;justify-content:flex-start}}

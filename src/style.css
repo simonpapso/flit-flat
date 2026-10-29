@@ -166,3 +166,7 @@
 .management-services article{padding:16px;border:1px solid var(--line);border-radius:8px;margin:10px 0;background:#fff;overflow-wrap:anywhere}
 .management-services article p{white-space:pre-wrap;line-height:1.7;margin-top:8px;color:#62705d;font-size:12px}
 .management-services-fields{margin:22px 0}.management-services-fields>.secondary{margin-bottom:16px}
+.management-service-link{display:flex;align-items:center;justify-content:space-between;gap:12px;color:var(--green);min-height:40px;border-radius:4px}
+.management-service-link>span{display:flex;align-items:center;gap:7px;font-size:12px}.management-service-link:hover strong{text-decoration:underline}
+.management-services article>.text-btn{margin-top:10px}
+@media(max-width:600px){.management-service-link{align-items:flex-start;flex-direction:column}}

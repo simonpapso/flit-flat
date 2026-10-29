@@ -134,7 +134,7 @@ function App({ initialData, initialLoadError }) {
     let saved;
     if (modal.kind === 'property') {
       const tenants = JSON.parse(form.tenantsJson || '[]'); delete form.tenantsJson;
-      const managementServices = JSON.parse(form.managementServicesJson || '[]').map(service=>({...service,name:service.name.trim(),description:service.description.trim()})); delete form.managementServicesJson;
+      const managementServices = JSON.parse(form.managementServicesJson || '[]').map(service=>({...service,name:service.name.trim(),description:service.description.trim(),url:(service.url || '').trim()})); delete form.managementServicesJson;
       const item = withTenants({ ...modal.item, ...form, managementServices, price: form.price === '' ? null : Number(form.price), rent: Number(form.rent), id: modal.item?.id || crypto.randomUUID() }, tenants);
       saved = await update({ ...data, properties: modal.item ? data.properties.map(p => p.id === item.id ? item : p) : [...data.properties, item] });
     } else {

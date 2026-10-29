@@ -36,7 +36,7 @@ const names = { overview: 'Prehľad', properties: 'Nehnuteľnosti', payments: 'P
 const today = new Date();
 function readRoute() {
   const hash = window.location.hash.slice(1);
-  const match = hash.match(/^property\/([^/]+)\/(energy|documents|photos|layout)$/);
+  const match = hash.match(/^property\/([^/]+)\/(energy|documents|photos|layout|tenants|services)$/);
   if (match) {
     try { return { page: 'detail', id: decodeURIComponent(match[1]), tab: match[2] }; } catch { /* Invalid link: show overview. */ }
   }

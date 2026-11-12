@@ -112,3 +112,10 @@ Označiť všetky izby vyberie miestnosti bez nábytku; Označiť celý pôdorys
 ### Prezeranie uloženého pôdorysu
 
 V sekcii Pôdorys a nábytok sa uložený nákres alebo nahratý podklad zobrazuje hore ako hotový náhľad. Pod ním sú tlačidlá Opraviť pôdorys a Nahrať pôdorys. Editor sa otvorí až po kliknutí na opravu (pri prázdnom byte Vytvoriť pôdorys). Úspešné uloženie ho zavrie a zobrazí aktuálny náhľad. Zrušenie úprav po potvrdení zahodí iba neuložený nákres; nahrané súbory sa naďalej ukladajú okamžite.
+
+## Mesačné e-mailové reporty
+
+Pripravené je automatické odosielanie prehľadu nájomného a energií každý 20. deň
+mesiaca z cloudovej evidencie. Aktiváciu cez GitHub Secrets a rozsah reportu
+popisuje [návod na mesačné reporty](docs/MONTHLY-REPORT.md). Bez nastavenia Secrets
+sa e-maily neposielajú.
